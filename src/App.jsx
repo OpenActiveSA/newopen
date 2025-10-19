@@ -1,12 +1,86 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { UserProvider, useUser } from './context/UserContext'
+import { RoleGuard } from './components/RoleGuard'
+import { LoginForm, UserProfile, RegisterForm } from './components/UserAuth'
+import { usePermissions } from './components/RoleGuard'
 import './App.css'
 
-function MainHeader() {
+function FullScreenMenu({ isOpen, onClose }) {
+  const navigate = useNavigate()
+  const { isAuthenticated, user, globalRole, getUserClubs } = useUser()
+  const { canAccessAdmin, canAccessClubAdmin } = usePermissions()
+
+  const handleMenuClick = (path) => {
+    navigate(path)
+    onClose()
+  }
+
+  if (!isOpen) return null
+
+  const userClubs = getUserClubs()
+
   return (
-    <header className="header main-header">
-      <div className="burger-menu">☰</div>
-      <div className="header-title">Main Header</div>
-    </header>
+    <div className="full-screen-menu-overlay" onClick={onClose}>
+      <div className="full-screen-menu" onClick={(e) => e.stopPropagation()}>
+        <div className="menu-close" onClick={onClose}>✕</div>
+        <div className="menu-items">
+          <div className="menu-item" onClick={() => handleMenuClick('/')}>
+            Home
+          </div>
+          
+          {!isAuthenticated ? (
+            <div className="menu-item" onClick={() => handleMenuClick('/login')}>
+              Login
+            </div>
+          ) : (
+            <>
+              <div className="menu-item" onClick={() => handleMenuClick('/register')}>
+                Register Club
+              </div>
+              
+              {canAccessAdmin() && (
+                <div className="menu-item" onClick={() => handleMenuClick('/admin')}>
+                  Open Active Admin
+                </div>
+              )}
+              
+              {userClubs.map(({ clubId, clubName, role }) => (
+                <div key={clubId} className="menu-item" onClick={() => handleMenuClick(`/club/${clubId}`)}>
+                  {clubName || `Club ${clubId}`}
+                </div>
+              ))}
+              
+              {userClubs.some(club => canAccessClubAdmin(club.clubId)) && (
+                <div className="menu-item" onClick={() => handleMenuClick('/club/demo/admin')}>
+                  Club Admin
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MainHeader() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { isAuthenticated } = useUser()
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+  }
+
+  return (
+    <>
+      <header className="header main-header">
+        <div className="burger-menu" onClick={toggleMenu}>☰</div>
+        <div className="header-title">Main Header</div>
+        {isAuthenticated && <UserProfile />}
+      </header>
+      <FullScreenMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+    </>
   )
 }
 
@@ -45,12 +119,36 @@ function Home() {
   )
 }
 
-function Login() {
+function BackArrow() {
+  const navigate = useNavigate()
+  
   return (
-    <div className="page">
-      <MainHeader />
-      <div className="page-content">Open Login</div>
-      <MainFooter />
+    <div className="back-arrow" onClick={() => navigate('/')}>
+      ←
+    </div>
+  )
+}
+
+function Login() {
+  const navigate = useNavigate()
+  const { isAuthenticated } = useUser()
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    navigate('/')
+    return null
+  }
+
+  const handleLoginSuccess = () => {
+    navigate('/')
+  }
+
+  return (
+    <div className="page login-page">
+      <BackArrow />
+      <div className="page-content">
+        <LoginForm onSuccess={handleLoginSuccess} />
+      </div>
     </div>
   )
 }
@@ -75,16 +173,66 @@ function DemoClubLogin() {
   )
 }
 
+function ClubAdmin() {
+  return (
+    <RoleGuard requiredClubRole="manager" clubId="demo" fallback={<div>Access Denied</div>}>
+      <div className="page demo-club">
+        <ClubHeader />
+        <div className="page-content">Club Admin</div>
+        <ClubFooter />
+      </div>
+    </RoleGuard>
+  )
+}
+
+function OpenActiveAdmin() {
+  return (
+    <RoleGuard requiredRoles={['openactive_user']} fallback={<div>Access Denied</div>}>
+      <div className="page">
+        <MainHeader />
+        <div className="page-content">Open Active Admin</div>
+        <MainFooter />
+      </div>
+    </RoleGuard>
+  )
+}
+
+function ClubRegister() {
+  return (
+    <div className="page">
+      <MainHeader />
+      <div className="page-content">Club Register</div>
+      <MainFooter />
+    </div>
+  )
+}
+
+function UserRegistration() {
+  return (
+    <div className="page demo-club">
+      <ClubHeader />
+      <div className="page-content">User Registration</div>
+      <ClubFooter />
+    </div>
+  )
+}
+
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/club/demo" element={<DemoClub />} />
-        <Route path="/club/demo/login" element={<DemoClubLogin />} />
-      </Routes>
-    </Router>
+    <UserProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin" element={<OpenActiveAdmin />} />
+          <Route path="/register" element={<ClubRegister />} />
+          <Route path="/club/demo" element={<DemoClub />} />
+          <Route path="/club/demo/login" element={<DemoClubLogin />} />
+          <Route path="/club/demo/admin" element={<ClubAdmin />} />
+          <Route path="/club/demo/register" element={<UserRegistration />} />
+        </Routes>
+      </Router>
+    </UserProvider>
   )
 }
 

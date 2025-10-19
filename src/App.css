@@ -31,8 +31,18 @@
   color: #fff;
 }
 
+.home .main-header {
+  background: #fff;
+  color: #052333;
+}
+
 .club-header {
   background: #d7dadd;
+  color: #052333;
+}
+
+.demo-club .club-header {
+  background: #fff;
   color: #052333;
 }
 
@@ -70,6 +80,11 @@
   color: #fff;
 }
 
+.home .main-footer {
+  background: #fff;
+  color: #052333;
+}
+
 .club-footer {
   background: #d7dadd;
   color: #052333;
@@ -77,4 +92,243 @@
 
 .footer-content {
   font-size: 1rem;
+}
+
+/* Full Screen Menu Styles */
+.full-screen-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.full-screen-menu {
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.menu-close {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #052333;
+  font-weight: bold;
+}
+
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.menu-item {
+  font-size: 3rem;
+  font-weight: 600;
+  color: #052333;
+  cursor: pointer;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+/* Dark theme for non-home pages */
+.page:not(.home) .full-screen-menu {
+  background: #052333;
+}
+
+.page:not(.home) .menu-close {
+  color: #fff;
+}
+
+.page:not(.home) .menu-item {
+  color: #fff;
+}
+
+.page:not(.home) .menu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Login Page Styles */
+.login-page {
+  position: relative;
+}
+
+.back-arrow {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #fff;
+  z-index: 100;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+}
+
+.back-arrow:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+/* User Authentication Styles */
+.auth-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.auth-form h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.error-message {
+  background: #ff6b6b;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.auth-form button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #052333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.auth-form button:hover {
+  background: #0a3a4a;
+}
+
+.auth-form button:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+/* User Profile Styles */
+.user-profile {
+  position: relative;
+  margin-left: auto;
+}
+
+.profile-toggle {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.5rem;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  z-index: 1000;
+}
+
+.profile-info {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.profile-info p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.club-relationships {
+  margin-top: 0.5rem;
+}
+
+.club-relationships h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.club-relationships ul {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.logout-btn:hover {
+  background: #ff5252;
 }
