@@ -1,13 +1,80 @@
 .page {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   background: #052333;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  font-size: 2rem;
   color: #fff;
+}
+
+.page.home {
+  background: #fff;
+  color: #052333;
+}
+
+.page.demo-club {
+  background: #d7dadd;
+  color: #052333;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.main-header {
+  background: #052333;
+  color: #fff;
+}
+
+.club-header {
+  background: #d7dadd;
+  color: #052333;
+}
+
+.burger-menu {
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-right: 1rem;
+}
+
+.header-title {
+  flex: 1;
   text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.page-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.footer {
+  padding: 1rem 2rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.main-footer {
+  background: #052333;
+  color: #fff;
+}
+
+.club-footer {
+  background: #d7dadd;
+  color: #052333;
+}
+
+.footer-content {
+  font-size: 1rem;
 }
