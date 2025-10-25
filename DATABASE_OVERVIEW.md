@@ -245,3 +245,5 @@ cp env.example .env
 5. **Deploy both platforms** with confidence
 
 The database system is designed to scale with your needs and provide a seamless experience across all platforms! 🎾
+
+

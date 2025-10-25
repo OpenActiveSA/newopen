@@ -139,3 +139,5 @@ router.delete('/:courtId', authenticateToken, requireClubManager, async (req, re
 });
 
 module.exports = router;
+
+

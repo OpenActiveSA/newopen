@@ -314,3 +314,5 @@ router.get('/:clubId/stats', authenticateToken, requireClubManager, async (req, 
 });
 
 module.exports = router;
+
+

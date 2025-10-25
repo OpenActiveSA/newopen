@@ -96,7 +96,10 @@ function ClubHeader() {
 function MainFooter() {
   return (
     <footer className="footer main-footer">
-      <div className="footer-content">Main Footer</div>
+      <div className="footer-content">
+        <div>Open Active Tennis Booking System</div>
+        <div>Version 2.0.0</div>
+      </div>
     </footer>
   )
 }
@@ -167,7 +170,9 @@ function DemoClubLogin() {
   return (
     <div className="page">
       <ClubHeader />
-      <div className="page-content">Demo Club Login</div>
+      <div className="page-content">
+        <LoginForm onSuccess={() => window.location.href = '/club/demo'} />
+      </div>
       <ClubFooter />
     </div>
   )

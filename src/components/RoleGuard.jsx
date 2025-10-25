@@ -100,3 +100,4 @@ export function usePermissions() {
     currentClubRole: currentClub ? getClubRole(currentClub.id) : null
   }
 }
+

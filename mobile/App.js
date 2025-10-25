@@ -278,6 +278,29 @@ function DemoClubPage({ navigation }) {
 
 // Demo Club Login Page
 function DemoClubLoginPage({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useUser();
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter email and password');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await login(email, password);
+      Alert.alert('Success', 'Logged in successfully!');
+      navigation.navigate('DemoClub');
+    } catch (error) {
+      Alert.alert('Login Failed', error.message || 'Please try again');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <View style={styles.page}>
       <View style={styles.header}>
@@ -288,8 +311,39 @@ function DemoClubLoginPage({ navigation }) {
       </View>
       
       <ScrollView style={styles.content}>
-        <Text style={styles.pageTitle}>Demo Club Login</Text>
-        <Text style={styles.pageContent}>Club login functionality coming soon...</Text>
+        <View style={styles.formContainer}>
+          <Text style={styles.formTitle}>Demo Club Login</Text>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email:</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Enter your email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Password:</Text>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password"
+              secureTextEntry
+            />
+          </View>
+          <TouchableOpacity 
+            style={[styles.button, isLoading && styles.buttonDisabled]} 
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonText}>
+              {isLoading ? 'Logging in...' : 'Login to Demo Club'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
