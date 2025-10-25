@@ -98,7 +98,7 @@ function MainFooter() {
     <footer className="footer main-footer">
       <div className="footer-content">
         <div>Open Active Tennis Booking System</div>
-        <div>Version 2.0.0</div>
+        <div>Version 1.0.0</div>
       </div>
     </footer>
   )

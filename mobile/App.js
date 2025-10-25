@@ -195,7 +195,7 @@ function HomeScreen({ navigation, onMenuPress }) {
           <View style={styles.welcomeContainer}>
             <Text style={styles.welcomeTitle}>Welcome to Open Active</Text>
             <Text style={styles.welcomeSubtitle}>Tennis Booking System</Text>
-            <Text style={styles.welcomeVersion}>Version 2.0.0</Text>
+            <Text style={styles.welcomeVersion}>Version 1.0.0</Text>
             <TouchableOpacity 
               style={styles.loginButton}
               onPress={() => navigation.navigate('Login')}
@@ -208,7 +208,7 @@ function HomeScreen({ navigation, onMenuPress }) {
       
       <View style={styles.footer}>
         <Text style={styles.footerText}>Open Active Tennis Booking System</Text>
-        <Text style={styles.footerText}>Version 2.0.0</Text>
+        <Text style={styles.footerText}>Version 1.0.0</Text>
       </View>
     </View>
   );
