@@ -157,9 +157,41 @@ function Login() {
 }
 
 function DemoClub() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const navigate = useNavigate()
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+  }
+
+  const handleMenuClick = (path) => {
+    navigate(path)
+    setIsMenuOpen(false)
+  }
+
   return (
     <div className="page demo-club">
-      <ClubHeader />
+      <header className="header club-header">
+        <div className="burger-menu" onClick={toggleMenu}>☰</div>
+        <div className="header-title">Club Header</div>
+      </header>
+      
+      {isMenuOpen && (
+        <div className="full-screen-menu-overlay" onClick={() => setIsMenuOpen(false)}>
+          <div className="full-screen-menu" onClick={(e) => e.stopPropagation()}>
+            <div className="menu-close" onClick={() => setIsMenuOpen(false)}>✕</div>
+            <div className="menu-items">
+              <div className="menu-item" onClick={() => handleMenuClick('/')}>
+                Home
+              </div>
+              <div className="menu-item" onClick={() => handleMenuClick('/club/demo/login')}>
+                Login
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="page-content">Demo Club</div>
       <ClubFooter />
     </div>

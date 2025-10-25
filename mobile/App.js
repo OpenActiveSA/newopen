@@ -259,11 +259,26 @@ function ClubRegisterPage({ navigation }) {
 
 // Demo Club Page
 function DemoClubPage({ navigation }) {
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+
+  const handleMenuPress = () => {
+    setIsMenuVisible(true);
+  };
+
+  const navigateToScreen = (screenName, params = {}) => {
+    setIsMenuVisible(false);
+    if (screenName === 'Home') {
+      navigation.navigate('Home');
+    } else if (screenName === 'DemoClubLogin') {
+      navigation.navigate('DemoClubLogin');
+    }
+  };
+
   return (
     <View style={styles.page}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
+        <TouchableOpacity onPress={handleMenuPress}>
+          <Text style={styles.menuButton}>☰</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Demo Club</Text>
       </View>
@@ -272,6 +287,37 @@ function DemoClubPage({ navigation }) {
         <Text style={styles.pageTitle}>Demo Club</Text>
         <Text style={styles.pageContent}>Club functionality coming soon...</Text>
       </ScrollView>
+
+      <Modal
+        visible={isMenuVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsMenuVisible(false)}
+      >
+        <View style={styles.menuOverlay}>
+          <View style={styles.menuContainer}>
+            <TouchableOpacity style={styles.menuClose} onPress={() => setIsMenuVisible(false)}>
+              <Text style={styles.menuCloseText}>✕</Text>
+            </TouchableOpacity>
+            
+            <ScrollView style={styles.menuItems}>
+              <TouchableOpacity 
+                style={styles.menuItem} 
+                onPress={() => navigateToScreen('Home')}
+              >
+                <Text style={styles.menuItemText}>Home</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.menuItem} 
+                onPress={() => navigateToScreen('DemoClubLogin')}
+              >
+                <Text style={styles.menuItemText}>Login</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
