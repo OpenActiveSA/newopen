@@ -177,6 +177,7 @@ function HomeScreen() {
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeTitle}>Welcome to Open Active</Text>
       <Text style={styles.welcomeSubtitle}>Tennis Booking System</Text>
+      <Text style={styles.homeVersion}>Version 2.0.0</Text>
       
       <View style={styles.loginSection}>
         <Text style={styles.loginTitle}>Login to Continue</Text>
@@ -233,6 +234,7 @@ function AppContent() {
       <View style={styles.header}>
         <Text style={styles.title}>🎾 Open Active v2.0</Text>
         <Text style={styles.subtitle}>Tennis Booking System</Text>
+        <Text style={styles.version}>Version 2.0.0</Text>
       </View>
       
       <ScrollView style={styles.content}>
@@ -282,6 +284,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.8)',
     fontWeight: '300',
+  },
+  version: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '300',
+    marginTop: 4,
   },
   content: {
     flex: 1,
@@ -435,6 +443,12 @@ const styles = StyleSheet.create({
   welcomeSubtitle: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  homeVersion: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
     textAlign: 'center',
     marginBottom: 30,
   },
