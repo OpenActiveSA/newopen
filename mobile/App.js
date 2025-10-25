@@ -37,24 +37,24 @@ function LoginForm({ navigation }) {
   return (
     <View style={styles.formContainer}>
       <Text style={styles.formTitle}>Login</Text>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Email:</Text>
+      <View style={styles.inputWithIcon}>
+        <Text style={styles.inputIcon}>📧</Text>
         <TextInput
-          style={styles.input}
+          style={styles.inputWithIconText}
           value={email}
           onChangeText={setEmail}
-          placeholder="Enter your email"
+          placeholder="Email"
           keyboardType="email-address"
           autoCapitalize="none"
         />
       </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Password:</Text>
+      <View style={styles.inputWithIcon}>
+        <Text style={styles.inputIcon}>🔒</Text>
         <TextInput
-          style={styles.input}
+          style={styles.inputWithIconText}
           value={password}
           onChangeText={setPassword}
-          placeholder="Enter your password"
+          placeholder="Password"
           secureTextEntry
         />
       </View>
@@ -367,24 +367,24 @@ function DemoClubLoginPage({ navigation }) {
       <ScrollView style={styles.content}>
         <View style={styles.formContainer}>
           <Text style={styles.formTitle}>Demo Club Login</Text>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email:</Text>
+          <View style={styles.inputWithIcon}>
+            <Text style={styles.inputIcon}>📧</Text>
             <TextInput
-              style={styles.input}
+              style={styles.inputWithIconText}
               value={email}
               onChangeText={setEmail}
-              placeholder="Enter your email"
+              placeholder="Email"
               keyboardType="email-address"
               autoCapitalize="none"
             />
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password:</Text>
+          <View style={styles.inputWithIcon}>
+            <Text style={styles.inputIcon}>🔒</Text>
             <TextInput
-              style={styles.input}
+              style={styles.inputWithIconText}
               value={password}
               onChangeText={setPassword}
-              placeholder="Enter your password"
+              placeholder="Password"
               secureTextEntry
             />
           </View>
@@ -735,10 +735,23 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 16,
   },
-  label: {
+  inputWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 8,
+    marginBottom: 16,
+    paddingHorizontal: 12,
+  },
+  inputIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  inputWithIconText: {
+    flex: 1,
+    padding: 12,
     fontSize: 16,
-    color: 'white',
-    marginBottom: 8,
+    color: '#333',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',

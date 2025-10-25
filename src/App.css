@@ -228,17 +228,23 @@
   margin-bottom: 1.5rem;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 0.75rem;
-  color: #fff;
-  font-size: 1.1rem;
-  font-weight: 500;
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  font-size: 1.2rem;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .form-group input {
   width: 100%;
-  padding: 1rem;
+  padding: 1rem 1rem 1rem 3rem;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
