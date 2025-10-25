@@ -152,6 +152,7 @@ function Login() {
       <div className="page-content">
         <LoginForm onSuccess={handleLoginSuccess} />
       </div>
+      <MainFooter />
     </div>
   )
 }

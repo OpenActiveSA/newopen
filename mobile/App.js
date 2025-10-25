@@ -34,49 +34,38 @@ function LoginForm({ navigation }) {
   };
 
   return (
-    <View style={styles.page}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Login</Text>
+    <View style={styles.formContainer}>
+      <Text style={styles.formTitle}>Login</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Email:</Text>
+        <TextInput
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Enter your email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
       </View>
-      
-      <ScrollView style={styles.content}>
-        <View style={styles.formContainer}>
-          <Text style={styles.formTitle}>Login</Text>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email:</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Enter your email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password:</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Enter your password"
-              secureTextEntry
-            />
-          </View>
-          <TouchableOpacity 
-            style={[styles.button, isLoading && styles.buttonDisabled]} 
-            onPress={handleLogin}
-            disabled={isLoading}
-          >
-            <Text style={styles.buttonText}>
-              {isLoading ? 'Logging in...' : 'Login'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Password:</Text>
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Enter your password"
+          secureTextEntry
+        />
+      </View>
+      <TouchableOpacity 
+        style={[styles.button, isLoading && styles.buttonDisabled]} 
+        onPress={handleLogin}
+        disabled={isLoading}
+      >
+        <Text style={styles.buttonText}>
+          {isLoading ? 'Logging in...' : 'Login'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -216,7 +205,25 @@ function HomeScreen({ navigation, onMenuPress }) {
 
 // Login Page
 function LoginPage({ navigation }) {
-  return <LoginForm navigation={navigation} />;
+  return (
+    <View style={styles.page}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.backArrow}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Login</Text>
+      </View>
+      
+      <ScrollView style={styles.content}>
+        <LoginForm navigation={navigation} />
+      </ScrollView>
+      
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Open Active Tennis Booking System</Text>
+        <Text style={styles.footerText}>Version 1.0.0</Text>
+      </View>
+    </View>
+  );
 }
 
 // Admin Page
