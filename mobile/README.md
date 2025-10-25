@@ -1,6 +1,6 @@
 # Open Active Mobile App
 
-The mobile app for the Open Active tennis booking system, built with React Native and Expo.
+The mobile app for the Open Active tennis booking system, built with React Native and Expo. Now uses your custom backend instead of Supabase!
 
 ## 🚀 Quick Start
 
@@ -8,6 +8,7 @@ The mobile app for the Open Active tennis booking system, built with React Nativ
 - Node.js (v18 or higher)
 - Expo CLI: `npm install -g @expo/cli`
 - Expo Go app on your phone (for testing)
+- **Your custom backend running** on `http://localhost:5000`
 
 ### 1. Install Dependencies
 
@@ -16,26 +17,17 @@ cd mobile
 npm install
 ```
 
-### 2. Configure Database
+### 2. Start Your Backend
 
-1. Copy the environment file:
-   ```bash
-   cp env.example .env
-   ```
+Make sure your custom backend is running:
+```bash
+cd ../backend
+node server.js
+```
 
-2. Update `.env` with your Supabase credentials (same as web app):
-   ```env
-   EXPO_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-   ```
+The backend should be running on `http://localhost:5000`
 
-3. Update `src/config/supabase.js` with your credentials:
-   ```javascript
-   const supabaseUrl = 'https://your-project-id.supabase.co'
-   const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-   ```
-
-### 3. Start Development Server
+### 3. Start Mobile Development Server
 
 ```bash
 npm start
@@ -45,12 +37,14 @@ npm start
 
 1. Install "Expo Go" from App Store/Google Play
 2. Scan the QR code from the terminal
-3. App will load on your device
+3. App will load on your device and connect to your backend
 
 ## 📱 Features
 
-### **Shared Database**
-- ✅ **Same database** as web app
+### **Custom Backend Integration**
+- ✅ **Your own backend** - No external dependencies
+- ✅ **MySQL database** - Full control over your data
+- ✅ **JWT authentication** - Secure user management
 - ✅ **Real-time sync** between mobile and web
 - ✅ **User authentication** works across platforms
 - ✅ **Club relationships** sync automatically
@@ -58,13 +52,14 @@ npm start
 ### **Mobile-Specific Features**
 - ✅ **Native navigation** with React Navigation
 - ✅ **Touch-optimized UI** for mobile devices
-- ✅ **Offline support** (coming soon)
-- ✅ **Push notifications** (coming soon)
+- ✅ **AsyncStorage** for token persistence
+- ✅ **Cross-platform** iOS and Android support
 
-### **Cross-Platform**
-- ✅ **iOS and Android** support
-- ✅ **Same codebase** for both platforms
-- ✅ **Consistent UI** across devices
+### **User Roles**
+- ✅ **OpenActive User** (Super user)
+- ✅ **Club Manager** (Club admin)
+- ✅ **Member** (Club member)
+- ✅ **Visitor** (Club visitor)
 
 ## 🏗️ Project Structure
 
@@ -72,54 +67,56 @@ npm start
 mobile/
 ├── src/
 │   ├── config/
-│   │   └── supabase.js          # Database configuration
+│   │   └── supabase.js          # (Legacy - can be removed)
 │   ├── context/
 │   │   └── UserContext.jsx      # User state management
 │   ├── services/
-│   │   └── database.js          # Database service layer
-│   ├── types/
-│   │   └── user.js              # User types and roles
-│   └── components/              # Mobile components (coming soon)
+│   │   ├── api.js               # Custom backend API service
+│   │   └── database.js          # (Legacy - can be removed)
+│   └── types/
+│       └── user.js              # User types and roles
 ├── App.js                       # Main app component
 ├── app.config.js               # Expo configuration
 └── package.json                # Dependencies
 ```
 
-## 🔄 Database Integration
+## 🔄 Backend Integration
 
-The mobile app uses the **exact same database** as the web app:
+The mobile app connects to your **custom backend**:
 
-### **Shared Services**
-- `userService` - User management
-- `clubService` - Club operations
-- `authService` - Authentication
-- `bookingService` - Booking management
-- `courtService` - Court management
+### **API Endpoints**
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+- `GET /api/users/me` - Get current user
+- `GET /api/clubs` - List all clubs
+- `GET /api/courts` - List courts
+- `POST /api/bookings` - Create booking
+- And many more!
 
-### **Real-time Sync**
+### **Authentication Flow**
+1. User logs in → JWT token stored in AsyncStorage
+2. Token sent with every API request
+3. Backend validates token and returns data
+4. User state synced across mobile and web
+
+### **Data Sync**
 - User login on web → automatically logged in on mobile
 - Book a court on mobile → appears on web immediately
 - Update profile on web → changes reflect on mobile
 
-### **Same User Roles**
-- OpenActive User (Super user)
-- Club Manager (Club admin)
-- Member (Club member)
-- Visitor (Club visitor)
-
 ## 🎯 Development Workflow
 
-### **1. Database Changes**
-- Make changes in `database/schema.sql`
-- Run SQL in Supabase dashboard
-- Both web and mobile apps automatically get updates
+### **1. Backend Changes**
+- Make changes in your backend code
+- Restart backend server
+- Mobile app automatically gets updates
 
-### **2. Service Updates**
-- Update `src/services/database.js` in both projects
-- Changes apply to both web and mobile
+### **2. API Updates**
+- Update `src/services/api.js` for new endpoints
+- Changes apply to mobile app immediately
 
 ### **3. User Context**
-- Same user state management
+- Same user state management as web
 - Same authentication flow
 - Same role-based permissions
 
@@ -131,21 +128,20 @@ The mobile app uses the **exact same database** as the web app:
 │                 │    │                 │
 │  UserContext    │    │  UserContext    │
 │  ┌───────────┐  │    │  ┌───────────┐  │
-│  │Database   │  │    │  │Database   │  │
-│  │Services   │  │    │  │Services   │  │
+│  │API Service│  │    │  │API Service│  │
 │  └───────────┘  │    │  └───────────┘  │
 └─────────────────┘    └─────────────────┘
          │                       │
          └───────────┬───────────┘
                      │
             ┌─────────────────┐
-            │   Supabase      │
-            │   Database      │
+            │  Your Backend   │
+            │  (Port 5000)    │
             │                 │
-            │  • Users        │
-            │  • Clubs        │
-            │  • Bookings     │
-            │  • Real-time    │
+            │  • Node.js      │
+            │  • Express      │
+            │  • MySQL        │
+            │  • JWT Auth     │
             └─────────────────┘
 ```
 
@@ -165,9 +161,8 @@ The mobile app uses the **exact same database** as the web app:
 
 ### **Environment Variables**
 ```env
-# Required for database connection
-EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
+# Backend API URL
+EXPO_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
 ### **App Configuration**
@@ -177,27 +172,37 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
 
 ## 🆘 Troubleshooting
 
-### **"Supabase configuration not set"**
-- Make sure you've updated `src/config/supabase.js`
-- Verify your environment variables are set
-- Check that your Supabase project is active
+### **"Network request failed"**
+- Make sure your backend is running on `http://localhost:5000`
+- Check that your phone and computer are on the same network
+- For physical device testing, use your computer's IP address instead of localhost
 
 ### **"Authentication failed"**
-- Ensure your Supabase URL and key are correct
-- Verify the database schema is set up
-- Check that RLS policies are configured
+- Verify your backend is running and accessible
+- Check that the JWT authentication is working
+- Ensure the database is set up correctly
 
-### **"Network request failed"**
-- Check your internet connection
-- Verify Supabase project is not paused
-- Ensure your API keys are valid
+### **"Cannot connect to backend"**
+- Backend must be running before starting mobile app
+- Check firewall settings
+- Verify the API URL in your configuration
 
 ## 🎾 Next Steps
 
-1. **Complete Mobile UI** - Build native mobile screens
-2. **Add Navigation** - Implement React Navigation
-3. **Test Database** - Verify all services work
-4. **Add Features** - Booking, club management, etc.
-5. **Deploy** - Build for app stores
+1. **Test Mobile App** - Verify it connects to your backend
+2. **Add More Features** - Booking, court management, etc.
+3. **Improve UI** - Add more mobile-specific screens
+4. **Deploy** - Build for app stores when ready
 
-The mobile app is now ready to use the same database as your web app! 🚀
+Your mobile app is now ready to use your custom backend! 🚀
+
+## 🔥 What's Working Now
+
+- ✅ **Custom Backend Integration** - No more Supabase!
+- ✅ **User Authentication** - Login/Register with your MySQL database
+- ✅ **Club Management** - View clubs from your database
+- ✅ **Cross-Platform** - Works on iOS and Android
+- ✅ **Token Persistence** - Stays logged in between app sessions
+- ✅ **Real-time Sync** - Same data as your web app
+
+Your tennis booking system is now completely self-contained! 🎾

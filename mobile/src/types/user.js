@@ -44,3 +44,5 @@ export const CLUB_RELATIONSHIP_TYPES = {
   MEMBER: 'member', 
   VISITOR: 'visitor'
 }
+
+

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react'
-import { authService, userService } from '../services/database.js'
+import { apiService } from '../services/api.js'
 import { USER_ROLES, CLUB_RELATIONSHIP_TYPES } from '../types/user.js'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // User context for managing user state and roles (mobile version)
 const UserContext = createContext()
@@ -83,13 +84,13 @@ export function UserProvider({ children }) {
 
   // Initialize auth state
   useEffect(() => {
-    // Get initial session
     const initializeAuth = async () => {
       try {
-        dispatch({ type: 'SET_LOADING', payload: true })
-        const session = await authService.getSession()
-        if (session?.user) {
-          await loadUserData(session.user)
+        // Check if we have a token in AsyncStorage
+        const token = await AsyncStorage.getItem('auth_token')
+        if (token) {
+          apiService.setToken(token)
+          await loadUserData()
         } else {
           dispatch({ type: 'SET_LOADING', payload: false })
         }
@@ -100,25 +101,14 @@ export function UserProvider({ children }) {
     }
 
     initializeAuth()
-
-    // Listen for auth changes
-    const { data: { subscription } } = authService.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        await loadUserData(session.user)
-      } else if (event === 'SIGNED_OUT') {
-        dispatch({ type: 'LOGOUT' })
-      }
-    })
-
-    return () => subscription.unsubscribe()
   }, [])
 
-  // Load user data from database
-  const loadUserData = async (user) => {
+  // Load user data from API
+  const loadUserData = async () => {
     try {
       const [profile, relationships] = await Promise.all([
-        userService.getCurrentUser(),
-        userService.getUserClubRelationships()
+        apiService.getCurrentUser(),
+        apiService.getUserClubRelationships()
       ])
 
       const clubRelationships = {}
@@ -141,6 +131,9 @@ export function UserProvider({ children }) {
       })
     } catch (error) {
       console.error('Error loading user data:', error)
+      // If we can't load user data, the token might be invalid
+      await AsyncStorage.removeItem('auth_token')
+      apiService.logout()
       dispatch({ type: 'SET_LOADING', payload: false })
     }
   }
@@ -148,9 +141,12 @@ export function UserProvider({ children }) {
   // Login function
   const login = async (email, password) => {
     try {
-      const { data, error } = await authService.signIn(email, password)
-      if (error) throw error
-      return data
+      const response = await apiService.login(email, password)
+      if (response.token) {
+        await AsyncStorage.setItem('auth_token', response.token)
+      }
+      await loadUserData()
+      return response
     } catch (error) {
       throw error
     }
@@ -159,7 +155,8 @@ export function UserProvider({ children }) {
   // Logout function
   const logout = async () => {
     try {
-      await authService.signOut()
+      await AsyncStorage.removeItem('auth_token')
+      await apiService.logout()
       dispatch({ type: 'LOGOUT' })
     } catch (error) {
       console.error('Error logging out:', error)
@@ -248,7 +245,7 @@ export function UserProvider({ children }) {
 // Hook to use user context
 export function useUser() {
   const context = useContext(UserContext)
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useUser must be used within a UserProvider')
   }
   return context
