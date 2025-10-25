@@ -94,6 +94,19 @@ function ClubHeader() {
   )
 }
 
+function SimpleClubHeader() {
+  const navigate = useNavigate()
+  
+  return (
+    <header className="header club-header">
+      <div className="back-arrow" onClick={() => navigate('/club/demo')}>
+        ←
+      </div>
+      <div className="header-title">Login</div>
+    </header>
+  )
+}
+
 function MainFooter() {
   const [version, setVersion] = useState('1.0.0')
 
@@ -138,11 +151,11 @@ function Home() {
   )
 }
 
-function BackArrow() {
+function BackArrow({ to = '/' }) {
   const navigate = useNavigate()
   
   return (
-    <div className="back-arrow" onClick={() => navigate('/')}>
+    <div className="back-arrow" onClick={() => navigate(to)}>
       ←
     </div>
   )
@@ -218,7 +231,7 @@ function DemoClub() {
 function DemoClubLogin() {
   return (
     <div className="page">
-      <ClubHeader />
+      <BackArrow to="/club/demo/" />
       <div className="page-content">
         <LoginForm onSuccess={() => window.location.href = '/club/demo'} />
       </div>
