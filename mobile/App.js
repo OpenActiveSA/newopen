@@ -149,6 +149,72 @@ function ClubsList() {
   );
 }
 
+// Home Component (when not authenticated)
+function HomeScreen() {
+  const { login } = useUser();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter email and password');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await login(email, password);
+      Alert.alert('Success', 'Logged in successfully!');
+    } catch (error) {
+      Alert.alert('Login Failed', error.message || 'Please try again');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.homeContainer}>
+      <Text style={styles.welcomeTitle}>Welcome to Open Active</Text>
+      <Text style={styles.welcomeSubtitle}>Tennis Booking System</Text>
+      
+      <View style={styles.loginSection}>
+        <Text style={styles.loginTitle}>Login to Continue</Text>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Email:</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter your email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Password:</Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter your password"
+            secureTextEntry
+          />
+        </View>
+        <TouchableOpacity 
+          style={[styles.button, isLoading && styles.buttonDisabled]} 
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          <Text style={styles.buttonText}>
+            {isLoading ? 'Logging in...' : 'Login'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 // Main App Component
 function AppContent() {
   const { isAuthenticated, isLoading } = useUser();
@@ -176,7 +242,7 @@ function AppContent() {
             <ClubsList />
           </>
         ) : (
-          <LoginForm />
+          <HomeScreen />
         )}
       </ScrollView>
       
@@ -352,5 +418,36 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: 'white',
+  },
+  homeContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 20,
+    marginTop: 20,
+  },
+  welcomeTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  loginSection: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 8,
+    padding: 16,
+  },
+  loginTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 16,
   },
 });
