@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { UserProvider, useUser } from './src/context/UserContext';
 import { apiService } from './src/services/api';
+import { getVersion } from './src/utils/version';
 
 const Stack = createStackNavigator();
 
@@ -184,7 +185,7 @@ function HomeScreen({ navigation, onMenuPress }) {
           <View style={styles.welcomeContainer}>
             <Text style={styles.welcomeTitle}>Welcome to Open Active</Text>
             <Text style={styles.welcomeSubtitle}>Tennis Booking System</Text>
-            <Text style={styles.welcomeVersion}>Version 1.0.0</Text>
+            <Text style={styles.welcomeVersion}>Version {getVersion()}</Text>
             <TouchableOpacity 
               style={styles.loginButton}
               onPress={() => navigation.navigate('Login')}
@@ -197,7 +198,7 @@ function HomeScreen({ navigation, onMenuPress }) {
       
       <View style={styles.footer}>
         <Text style={styles.footerText}>Open Active Tennis Booking System</Text>
-        <Text style={styles.footerText}>Version 1.0.0</Text>
+        <Text style={styles.footerText}>Version {getVersion()}</Text>
       </View>
     </View>
   );
@@ -220,7 +221,7 @@ function LoginPage({ navigation }) {
       
       <View style={styles.footer}>
         <Text style={styles.footerText}>Open Active Tennis Booking System</Text>
-        <Text style={styles.footerText}>Version 1.0.0</Text>
+        <Text style={styles.footerText}>Version {getVersion()}</Text>
       </View>
     </View>
   );

@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { UserProvider, useUser } from './context/UserContext'
 import { RoleGuard } from './components/RoleGuard'
 import { LoginForm, UserProfile, RegisterForm } from './components/UserAuth'
 import { usePermissions } from './components/RoleGuard'
+import { getVersion } from './utils/version'
 import './App.css'
 
 function FullScreenMenu({ isOpen, onClose }) {
@@ -94,11 +95,17 @@ function ClubHeader() {
 }
 
 function MainFooter() {
+  const [version, setVersion] = useState('1.0.0')
+
+  useEffect(() => {
+    getVersion().then(setVersion)
+  }, [])
+
   return (
     <footer className="footer main-footer">
       <div className="footer-content">
         <div>Open Active Tennis Booking System</div>
-        <div>Version 1.0.0</div>
+        <div>Version {version}</div>
       </div>
     </footer>
   )
