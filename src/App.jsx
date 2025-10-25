@@ -112,9 +112,18 @@ function MainFooter() {
 }
 
 function ClubFooter() {
+  const [version, setVersion] = useState('1.0.0')
+
+  useEffect(() => {
+    getVersion().then(setVersion)
+  }, [])
+
   return (
     <footer className="footer club-footer">
-      <div className="footer-content">Club Footer</div>
+      <div className="footer-content">
+        <div>Open Active Tennis Booking System</div>
+        <div>Version {version}</div>
+      </div>
     </footer>
   )
 }
