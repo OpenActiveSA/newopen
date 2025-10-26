@@ -18,11 +18,11 @@ export async function getVersion() {
   }
 
   // Fallback version
-  cachedVersion = '1.0.0';
+  cachedVersion = '1.0.2';
   return cachedVersion;
 }
 
 // For immediate use (synchronous fallback)
 export function getVersionSync() {
-  return cachedVersion || '1.0.0';
+  return cachedVersion || '1.0.2';
 }

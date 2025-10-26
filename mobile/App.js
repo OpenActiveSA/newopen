@@ -6,11 +6,24 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { UserProvider, useUser } from './src/context/UserContext';
 import { apiService } from './src/services/api';
 import { getVersion } from './src/utils/version';
+import SvgTest from './SvgTest';
+import { Icon } from './src/components/Icon';
+import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import Svg, { Polyline } from 'react-native-svg';
 
 const Stack = createStackNavigator();
 
+// Back arrow SVG component
+const BackSvg = ({ size = 24, color = 'white' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Polyline points="17,21 7,12 17,3" />
+  </Svg>
+);
+
+// Using shared Icon component with your custom designs
+
 // Login Component
-function LoginForm({ navigation }) {
+function LoginForm({ navigation, onSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +39,11 @@ function LoginForm({ navigation }) {
     try {
       await login(email, password);
       Alert.alert('Success', 'Logged in successfully!');
-      navigation.navigate('Home');
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigation.navigate('Home');
+      }
     } catch (error) {
       Alert.alert('Login Failed', error.message || 'Please try again');
     } finally {
@@ -38,23 +55,29 @@ function LoginForm({ navigation }) {
     <View style={styles.formContainer}>
       <Text style={styles.formTitle}>Login</Text>
       <View style={styles.inputWithIcon}>
-        <Text style={styles.inputIcon}>📧</Text>
+        <View style={styles.inputIcon}>
+          <Icon name="envelope" size={20} color="rgba(255, 255, 255, 0.6)" />
+        </View>
         <TextInput
           style={styles.inputWithIconText}
           value={email}
           onChangeText={setEmail}
           placeholder="Email"
+          placeholderTextColor="rgba(255, 255, 255, 0.7)"
           keyboardType="email-address"
           autoCapitalize="none"
         />
       </View>
       <View style={styles.inputWithIcon}>
-        <Text style={styles.inputIcon}>🔒</Text>
+        <View style={styles.inputIcon}>
+          <Icon name="lock" size={20} color="rgba(255, 255, 255, 0.6)" />
+        </View>
         <TextInput
           style={styles.inputWithIconText}
           value={password}
           onChangeText={setPassword}
           placeholder="Password"
+          placeholderTextColor="rgba(255, 255, 255, 0.7)"
           secureTextEntry
         />
       </View>
@@ -172,7 +195,10 @@ function HomeScreen({ navigation, onMenuPress }) {
   return (
     <View style={styles.page}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onMenuPress}>
+        <TouchableOpacity onPress={() => {
+          console.log('Menu button pressed');
+          onMenuPress();
+        }}>
           <Text style={styles.menuButton}>☰</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Main Header</Text>
@@ -192,6 +218,13 @@ function HomeScreen({ navigation, onMenuPress }) {
             >
               <Text style={styles.loginButtonText}>Login to Continue</Text>
             </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.loginButton, { backgroundColor: '#4CAF50', marginTop: 10 }]}
+              onPress={() => navigation.navigate('SvgTest')}
+            >
+              <Text style={styles.loginButtonText}>SVG Test</Text>
+            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
@@ -210,9 +243,8 @@ function LoginPage({ navigation }) {
     <View style={styles.page}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
+          <BackSvg size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Login</Text>
       </View>
       
       <ScrollView style={styles.content}>
@@ -233,7 +265,7 @@ function AdminPage({ navigation }) {
     <View style={styles.page}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
+          <BackSvg size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Open Active Admin</Text>
       </View>
@@ -252,7 +284,7 @@ function ClubRegisterPage({ navigation }) {
     <View style={styles.page}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
+          <BackSvg size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Club Register</Text>
       </View>
@@ -332,73 +364,25 @@ function DemoClubPage({ navigation }) {
 
 // Demo Club Login Page
 function DemoClubLoginPage({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useUser();
-
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await login(email, password);
-      Alert.alert('Success', 'Logged in successfully!');
-      navigation.navigate('DemoClub');
-    } catch (error) {
-      Alert.alert('Login Failed', error.message || 'Please try again');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <View style={styles.page}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
+          <BackSvg size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Demo Club Login</Text>
       </View>
       
       <ScrollView style={styles.content}>
-        <View style={styles.formContainer}>
-          <Text style={styles.formTitle}>Demo Club Login</Text>
-          <View style={styles.inputWithIcon}>
-            <Text style={styles.inputIcon}>📧</Text>
-            <TextInput
-              style={styles.inputWithIconText}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-          <View style={styles.inputWithIcon}>
-            <Text style={styles.inputIcon}>🔒</Text>
-            <TextInput
-              style={styles.inputWithIconText}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Password"
-              secureTextEntry
-            />
-          </View>
-          <TouchableOpacity 
-            style={[styles.button, isLoading && styles.buttonDisabled]} 
-            onPress={handleLogin}
-            disabled={isLoading}
-          >
-            <Text style={styles.buttonText}>
-              {isLoading ? 'Logging in...' : 'Login to Demo Club'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <LoginForm 
+          navigation={navigation} 
+          onSuccess={() => navigation.navigate('DemoClub')} 
+        />
       </ScrollView>
+      
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Open Active Tennis Booking System</Text>
+        <Text style={styles.footerText}>Version {getVersion()}</Text>
+      </View>
     </View>
   );
 }
@@ -409,7 +393,7 @@ function ClubAdminPage({ navigation }) {
     <View style={styles.page}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
+          <BackSvg size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Club Admin</Text>
       </View>
@@ -428,7 +412,7 @@ function UserRegistrationPage({ navigation }) {
     <View style={styles.page}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
+          <BackSvg size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>User Registration</Text>
       </View>
@@ -449,7 +433,7 @@ function ClubPage({ navigation, route }) {
     <View style={styles.page}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
+          <BackSvg size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Club {clubId}</Text>
       </View>
@@ -463,7 +447,7 @@ function ClubPage({ navigation, route }) {
 }
 
 // Navigation Menu
-function NavigationMenu({ isVisible, onClose }) {
+function NavigationMenu({ isVisible, onClose, navigation }) {
   const { isAuthenticated, user, globalRole, getUserClubs } = useUser();
 
   if (!isVisible) return null;
@@ -471,7 +455,13 @@ function NavigationMenu({ isVisible, onClose }) {
   const userClubs = getUserClubs();
 
   const navigateToScreen = (screenName, params = {}) => {
-    // This will be handled by the navigation context
+    console.log('navigateToScreen called with:', screenName);
+    console.log('navigation object:', navigation);
+    if (navigation && navigation.navigate) {
+      navigation.navigate(screenName, params);
+    } else {
+      console.log('Navigation not available');
+    }
     onClose();
   };
 
@@ -489,11 +479,20 @@ function NavigationMenu({ isVisible, onClose }) {
           </TouchableOpacity>
           
           <ScrollView style={styles.menuItems}>
+            <Text style={styles.menuItemText}>Debug: Menu is visible</Text>
+            
             <TouchableOpacity 
               style={styles.menuItem} 
               onPress={() => navigateToScreen('Home')}
             >
               <Text style={styles.menuItemText}>Home</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => navigateToScreen('SvgTest')}
+            >
+              <Text style={styles.menuItemText}>SVG Test</Text>
             </TouchableOpacity>
             
             {!isAuthenticated ? (
@@ -573,6 +572,7 @@ function NavigationMenu({ isVisible, onClose }) {
 function AppContent() {
   const { isAuthenticated, isLoading } = useUser();
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [navigationRef, setNavigationRef] = useState(null);
 
   if (isLoading) {
     return (
@@ -584,7 +584,7 @@ function AppContent() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={setNavigationRef}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
@@ -595,6 +595,7 @@ function AppContent() {
           {(props) => <HomeScreen {...props} onMenuPress={() => setIsMenuVisible(true)} />}
         </Stack.Screen>
         <Stack.Screen name="Login" component={LoginPage} />
+        <Stack.Screen name="SvgTest" component={SvgTest} />
         <Stack.Screen name="Admin" component={AdminPage} />
         <Stack.Screen name="ClubRegister" component={ClubRegisterPage} />
         <Stack.Screen name="DemoClub" component={DemoClubPage} />
@@ -607,6 +608,7 @@ function AppContent() {
       <NavigationMenu 
         isVisible={isMenuVisible}
         onClose={() => setIsMenuVisible(false)}
+        navigation={navigationRef}
       />
       
       <StatusBar style="light" />
@@ -616,6 +618,17 @@ function AppContent() {
 
 // App with UserProvider
 export default function App() {
+  let [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <UserProvider>
       <AppContent />
@@ -638,8 +651,6 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   menuButton: {
     fontSize: 24,
@@ -647,7 +658,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   backArrow: {
-    fontSize: 24,
+    fontSize: 32,
     color: 'white',
     marginRight: 15,
   },
@@ -656,6 +667,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
     flex: 1,
+    fontFamily: 'Poppins_600SemiBold',
   },
   content: {
     flex: 1,
@@ -666,6 +678,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
     marginBottom: 20,
+    fontFamily: 'Poppins_600SemiBold',
   },
   pageContent: {
     fontSize: 16,
@@ -674,14 +687,15 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    paddingBottom: 35,
+    backgroundColor: 'transparent',
     alignItems: 'center',
   },
   footerText: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.6)',
     textAlign: 'center',
+    fontFamily: 'Poppins_400Regular',
   },
   welcomeContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -695,18 +709,21 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     marginBottom: 8,
+    fontFamily: 'Poppins_700Bold',
   },
   welcomeSubtitle: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     marginBottom: 8,
+    fontFamily: 'Poppins_400Regular',
   },
   welcomeVersion: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.6)',
     textAlign: 'center',
     marginBottom: 30,
+    fontFamily: 'Poppins_400Regular',
   },
   loginButton: {
     backgroundColor: '#667eea',
@@ -718,10 +735,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Poppins_600SemiBold',
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderRadius: 3,
     padding: 20,
     marginTop: 20,
   },
@@ -731,6 +749,7 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     marginBottom: 20,
+    fontFamily: 'Poppins_600SemiBold',
   },
   inputContainer: {
     marginBottom: 16,
@@ -738,8 +757,9 @@ const styles = StyleSheet.create({
   inputWithIcon: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 8,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 2,
+    borderBottomColor: 'white',
     marginBottom: 16,
     paddingHorizontal: 12,
   },
@@ -751,7 +771,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     fontSize: 16,
-    color: '#333',
+    color: 'white',
+    backgroundColor: 'transparent',
+    fontFamily: 'Poppins_400Regular',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -760,8 +782,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#667eea',
-    borderRadius: 8,
+    backgroundColor: 'white',
+    borderRadius: 3,
     padding: 16,
     alignItems: 'center',
     marginTop: 10,
@@ -770,7 +792,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#666',
   },
   buttonText: {
-    color: 'white',
+    color: '#333',
     fontSize: 16,
     fontWeight: '600',
   },

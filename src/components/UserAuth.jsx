@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useUser } from '../context/UserContext'
 import { apiService } from '../services/api.js'
 import { USER_ROLES, CLUB_RELATIONSHIP_TYPES } from '../types/user.js'
+import { Icon } from './Icon.jsx'
 
 // Login component
 export function LoginForm({ onSuccess }) {
@@ -37,7 +38,9 @@ export function LoginForm({ onSuccess }) {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <div className="input-with-icon">
-              <span className="input-icon">📧</span>
+              <span className="input-icon">
+                <Icon name="envelope" size={20} color="rgba(255, 255, 255, 0.6)" />
+              </span>
               <input
                 type="email"
                 id="email"
@@ -50,7 +53,9 @@ export function LoginForm({ onSuccess }) {
           </div>
           <div className="form-group">
             <div className="input-with-icon">
-              <span className="input-icon">🔒</span>
+              <span className="input-icon">
+                <Icon name="lock" size={20} color="rgba(255, 255, 255, 0.6)" />
+              </span>
               <input
                 type="password"
                 id="password"

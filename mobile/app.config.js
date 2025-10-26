@@ -14,6 +14,12 @@ export default {
     assetBundlePatterns: [
       "**/*"
     ],
+    fonts: [
+      "node_modules/@expo-google-fonts/poppins/Poppins_400Regular.ttf",
+      "node_modules/@expo-google-fonts/poppins/Poppins_500Medium.ttf",
+      "node_modules/@expo-google-fonts/poppins/Poppins_600SemiBold.ttf",
+      "node_modules/@expo-google-fonts/poppins/Poppins_700Bold.ttf"
+    ],
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.openactive.mobile"
@@ -35,6 +41,7 @@ export default {
     }
   }
 }
+
 
 
 

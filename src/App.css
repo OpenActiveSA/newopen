@@ -1,3 +1,11 @@
+/* Global body styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  margin: 0;
+  padding: 0;
+}
+
 .page {
   min-height: 100vh;
   display: flex;
@@ -63,7 +71,7 @@
   justify-content: center;
   font-size: 2rem;
   text-align: center;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .footer {
@@ -88,7 +96,9 @@
 }
 
 .footer-content {
-  font-size: 1rem;
+  font-size: 13px;
+  opacity: 0.6;
+  font-family: 'Poppins', sans-serif;
 }
 
 /* Full Screen Menu Styles */
@@ -174,7 +184,7 @@
   position: absolute;
   top: 2rem;
   left: 2rem;
-  font-size: 2rem;
+  font-size: 2.5rem;
   cursor: pointer;
   color: #fff;
   z-index: 100;
@@ -195,12 +205,10 @@
 
 /* User Authentication Styles */
 .auth-form {
-  max-width: 500px;
+  max-width: 525px;
+  width: 100%;
   margin: 0 auto;
   padding: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 60vh;
 }
 
@@ -240,23 +248,26 @@
   width: 100%;
   padding: 1rem 1rem 1rem 3rem;
   border: none;
-  border-radius: 3px;
+  border-bottom: 2px solid white;
+  border-radius: 0;
   font-size: 1rem;
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
+  font-family: 'Poppins', sans-serif;
+  background: transparent;
+  color: white;
   transition: all 0.3s ease;
   box-sizing: border-box;
 }
 
 .form-group input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 1);
+  background: transparent;
+  border-bottom: 2px solid white;
   transform: translateY(-2px);
 }
 
 .form-group input::placeholder {
-  color: #666;
-  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Poppins', sans-serif;
 }
 
 .error-message {
@@ -278,6 +289,7 @@
   border-radius: 3px;
   font-size: 1.1rem;
   font-weight: 600;
+  font-family: 'Poppins', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -309,6 +321,7 @@
   cursor: pointer;
   font-size: 1rem;
   padding: 0.5rem;
+  font-family: 'Poppins', sans-serif;
 }
 
 .profile-dropdown {
@@ -363,8 +376,535 @@
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
+  font-family: 'Poppins', sans-serif;
 }
 
 .logout-btn:hover {
   background: #ff5252;
+}
+
+/* SVG Test Page Styles */
+.page-title {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.section-label {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.svg-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem;
+}
+
+.svg-box {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.svg-box:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
+.icon-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon-label {
+  color: white;
+  font-size: 14px;
+  opacity: 0.8;
+  text-align: center;
+}
+
+.emoji {
+  font-size: 30px;
+}
+
+.note {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Line SVG Styles */
+.lock-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.lock-body {
+  position: absolute;
+  width: 30px;
+  height: 40px;
+  border: 2px solid white;
+  border-radius: 4px;
+  left: 5px;
+}
+
+.lock-shackle {
+  position: absolute;
+  width: 20px;
+  height: 15px;
+  border: 2px solid white;
+  border-bottom: none;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  top: -8px;
+  left: 10px;
+}
+
+.envelope-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.envelope-body {
+  width: 36px;
+  height: 26px;
+  border: 2px solid white;
+  border-radius: 4px;
+}
+
+.envelope-flap {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-top: 10px solid white;
+}
+
+.heart-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heart-left, .heart-right {
+  width: 20px;
+  height: 18px;
+  border: 2px solid white;
+  border-top-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  position: absolute;
+}
+
+.heart-left {
+  transform: rotate(45deg);
+}
+
+.heart-right {
+  transform: rotate(-45deg);
+  left: -2px;
+}
+
+.star-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.star-shape {
+  width: 20px;
+  height: 20px;
+  border: 2px solid white;
+  transform: rotate(45deg);
+}
+
+.star-shape::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid white;
+  transform: rotate(90deg);
+}
+
+/* Tennis Ball Line Icon */
+.tennis-ball-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tennis-ball-circle {
+  width: 30px;
+  height: 30px;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+
+.tennis-ball-curve {
+  position: absolute;
+  width: 30px;
+  height: 2px;
+  background: white;
+  transform: rotate(45deg);
+}
+
+/* Tennis Court Line Icon */
+.tennis-court-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.court-outline {
+  width: 36px;
+  height: 20px;
+  border: 2px solid white;
+  border-radius: 2px;
+}
+
+.court-net {
+  position: absolute;
+  width: 2px;
+  height: 20px;
+  background: white;
+  left: 19px;
+}
+
+.court-center-line {
+  position: absolute;
+  width: 36px;
+  height: 2px;
+  background: white;
+  top: 19px;
+}
+
+/* Email Line Icon */
+.email-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.email-body {
+  width: 36px;
+  height: 26px;
+  border: 2px solid white;
+  border-radius: 4px;
+}
+
+.email-flap {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-top: 10px solid white;
+}
+
+/* Play Line Icon */
+.play-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.play-triangle {
+  width: 0;
+  height: 0;
+  border-left: 20px solid white;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+}
+
+/* Calendar Line Icon */
+.calendar-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calendar-body {
+  width: 32px;
+  height: 28px;
+  border: 2px solid white;
+  border-radius: 4px;
+}
+
+.calendar-ring {
+  position: absolute;
+  width: 32px;
+  height: 8px;
+  border: 2px solid white;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  top: -2px;
+}
+
+.calendar-holes {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 6px;
+}
+
+.calendar-holes::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  left: 16px;
+}
+
+/* Clock Line Icon */
+.clock-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.clock-circle {
+  width: 32px;
+  height: 32px;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+
+.clock-hands {
+  position: absolute;
+  width: 2px;
+  height: 12px;
+  background: white;
+  top: 8px;
+  left: 19px;
+  transform-origin: bottom center;
+}
+
+.clock-hands::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 2px;
+  background: white;
+  top: 6px;
+  left: -3px;
+}
+
+.clock-center {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  top: 18px;
+  left: 18px;
+}
+
+/* User Line Icon */
+.user-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.user-head {
+  width: 20px;
+  height: 20px;
+  border: 2px solid white;
+  border-radius: 50%;
+  position: absolute;
+  top: 4px;
+}
+
+.user-body {
+  width: 24px;
+  height: 16px;
+  border: 2px solid white;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  position: absolute;
+  bottom: 4px;
+}
+
+/* Location Line Icon */
+.location-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.location-pin {
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 20px solid white;
+  position: absolute;
+  top: 8px;
+}
+
+.location-dot {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 20px;
+}
+
+/* Phone Line Icon */
+.phone-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone-body {
+  width: 20px;
+  height: 32px;
+  border: 2px solid white;
+  border-radius: 4px;
+}
+
+.phone-screen {
+  position: absolute;
+  width: 16px;
+  height: 20px;
+  border: 1px solid white;
+  border-radius: 2px;
+  top: 6px;
+}
+
+/* Settings Line Icon */
+.settings-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.settings-gear {
+  width: 24px;
+  height: 24px;
+  border: 2px solid white;
+  border-radius: 50%;
+  position: relative;
+}
+
+.settings-gear::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background: white;
+  top: 11px;
+  left: -2px;
+}
+
+.settings-gear::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 24px;
+  background: white;
+  top: -2px;
+  left: 11px;
+}
+
+/* Search Line Icon */
+.search-line {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-circle {
+  width: 16px;
+  height: 16px;
+  border: 2px solid white;
+  border-radius: 50%;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+}
+
+.search-handle {
+  position: absolute;
+  width: 8px;
+  height: 2px;
+  background: white;
+  transform: rotate(45deg);
+  top: 20px;
+  left: 20px;
 }

@@ -5,6 +5,7 @@ import { RoleGuard } from './components/RoleGuard'
 import { LoginForm, UserProfile, RegisterForm } from './components/UserAuth'
 import { usePermissions } from './components/RoleGuard'
 import { getVersion } from './utils/version'
+import SvgTest from './components/SvgTest'
 import './App.css'
 
 function FullScreenMenu({ isOpen, onClose }) {
@@ -28,6 +29,10 @@ function FullScreenMenu({ isOpen, onClose }) {
         <div className="menu-items">
           <div className="menu-item" onClick={() => handleMenuClick('/')}>
             Home
+          </div>
+          
+          <div className="menu-item" onClick={() => handleMenuClick('/svg-test')}>
+            SVG Test
           </div>
           
           {!isAuthenticated ? (
@@ -156,7 +161,9 @@ function BackArrow({ to = '/' }) {
   
   return (
     <div className="back-arrow" onClick={() => navigate(to)}>
-      ←
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="17,21 7,12 17,3"></polyline>
+      </svg>
     </div>
   )
 }
@@ -291,6 +298,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/svg-test" element={<SvgTest />} />
           <Route path="/admin" element={<OpenActiveAdmin />} />
           <Route path="/register" element={<ClubRegister />} />
           <Route path="/club/demo" element={<DemoClub />} />
