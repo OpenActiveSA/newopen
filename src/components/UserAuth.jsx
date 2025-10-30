@@ -33,13 +33,14 @@ export function LoginForm({ onSuccess }) {
   return (
     <div className="auth-form">
       <div className="form-container">
-        <h2 className="form-title">Login</h2>
+        <h2 className="form-title">o p e n</h2>
+        <p className="form-subtitle">Login to book & play!</p>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <div className="input-with-icon">
               <span className="input-icon">
-                <Icon name="envelope" size={20} color="rgba(255, 255, 255, 0.6)" />
+                <Icon name="envelope" size={20} color={formData.email ? "#8b7b54" : "rgba(255, 255, 255, 0.6)"} />
               </span>
               <input
                 type="email"
@@ -54,7 +55,7 @@ export function LoginForm({ onSuccess }) {
           <div className="form-group">
             <div className="input-with-icon">
               <span className="input-icon">
-                <Icon name="lock" size={20} color="rgba(255, 255, 255, 0.6)" />
+                <Icon name="lock" size={20} color={formData.password ? "#8b7b54" : "rgba(255, 255, 255, 0.6)"} />
               </span>
               <input
                 type="password"
@@ -69,6 +70,10 @@ export function LoginForm({ onSuccess }) {
           <button type="submit" disabled={isLoading} className="submit-button">
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
+          <div className="auth-links">
+            <a href="#" className="auth-link">Forgot Password?</a>
+            <a href="/register" className="auth-link">Register new account</a>
+          </div>
         </form>
       </div>
     </div>
@@ -84,19 +89,41 @@ export function UserProfile() {
 
   const userClubs = getUserClubs()
 
+  const getInitials = (name) => {
+    if (!name) return 'U'
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  }
+
   return (
     <div className="user-profile">
       <button 
         className="profile-toggle"
         onClick={() => setShowProfile(!showProfile)}
       >
-        {user.name || user.email} ▼
+        <div className="profile-avatar">
+          {user.avatar_url ? (
+            <img src={user.avatar_url} alt={user.name || 'User'} />
+          ) : (
+            <span>{getInitials(user.name || user.email)}</span>
+          )}
+        </div>
+        <span>{user.name || user.email}</span>
+        <span>▼</span>
       </button>
       
       {showProfile && (
         <div className="profile-dropdown">
           <div className="profile-info">
-            <h3>{user.name || user.email}</h3>
+            <div className="profile-header">
+              <div className="profile-avatar-large">
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} alt={user.name || 'User'} />
+                ) : (
+                  <span>{getInitials(user.name || user.email)}</span>
+                )}
+              </div>
+              <h3>{user.name || user.email}</h3>
+            </div>
             <p>Role: {globalRole}</p>
             {userClubs.length > 0 && (
               <div className="club-relationships">
@@ -165,55 +192,80 @@ export function RegisterForm({ onSuccess }) {
 
   return (
     <div className="auth-form">
-      <h2>Register</h2>
-      {error && <div className="error-message">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            required
-            minLength={6}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-            required
-            minLength={6}
-          />
-        </div>
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Creating Account...' : 'Register'}
-        </button>
-      </form>
+      <div className="form-container">
+        <h2 className="form-title">o p e n</h2>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <div className="input-with-icon">
+              <span className="input-icon">
+                <Icon name="user" size={20} color={formData.name ? "#8b7b54" : "rgba(255, 255, 255, 0.6)"} />
+              </span>
+              <input
+                type="text"
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Name"
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group">
+            <div className="input-with-icon">
+              <span className="input-icon">
+                <Icon name="envelope" size={20} color={formData.email ? "#8b7b54" : "rgba(255, 255, 255, 0.6)"} />
+              </span>
+              <input
+                type="email"
+                id="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="Email"
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group">
+            <div className="input-with-icon">
+              <span className="input-icon">
+                <Icon name="lock" size={20} color={formData.password ? "#8b7b54" : "rgba(255, 255, 255, 0.6)"} />
+              </span>
+              <input
+                type="password"
+                id="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Password"
+                required
+                minLength={6}
+              />
+            </div>
+          </div>
+          <div className="form-group">
+            <div className="input-with-icon">
+              <span className="input-icon">
+                <Icon name="lock" size={20} color={formData.confirmPassword ? "#8b7b54" : "rgba(255, 255, 255, 0.6)"} />
+              </span>
+              <input
+                type="password"
+                id="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                placeholder="Confirm Password"
+                required
+                minLength={6}
+              />
+            </div>
+          </div>
+          <button type="submit" disabled={isLoading} className="submit-button">
+            {isLoading ? 'Creating Account...' : 'Register'}
+          </button>
+          <div className="auth-links">
+            <a href="/login" className="auth-link">Already have an account? Login</a>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

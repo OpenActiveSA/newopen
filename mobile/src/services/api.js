@@ -1,25 +1,53 @@
-// Custom API service for mobile app - connects to our backend
-const API_BASE_URL = 'http://localhost:5000/api';
+// Custom API service for our backend
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Use your computer's IP for mobile or localhost for web
+const API_BASE_URL = 'http://192.168.0.104:5000/api'; // Update this to your computer's IP
 
 class ApiService {
   constructor() {
     this.baseURL = API_BASE_URL;
-    this.token = null; // Will be set from AsyncStorage
+    this.token = null;
+    this.initToken();
+  }
+
+  // Initialize token from AsyncStorage
+  async initToken() {
+    try {
+      this.token = await AsyncStorage.getItem('auth_token');
+    } catch (error) {
+      console.error('Error loading token:', error);
+    }
   }
 
   // Set authentication token
-  setToken(token) {
+  async setToken(token) {
     this.token = token;
+    try {
+      if (token) {
+        await AsyncStorage.setItem('auth_token', token);
+      } else {
+        await AsyncStorage.removeItem('auth_token');
+      }
+    } catch (error) {
+      console.error('Error saving token:', error);
+    }
   }
 
   // Get authentication headers
-  getAuthHeaders() {
+  async getAuthHeaders() {
     const headers = {
       'Content-Type': 'application/json',
     };
     
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    // Always get the latest token from AsyncStorage
+    try {
+      const currentToken = await AsyncStorage.getItem('auth_token');
+      if (currentToken) {
+        headers['Authorization'] = `Bearer ${currentToken}`;
+      }
+    } catch (error) {
+      console.error('Error getting token:', error);
     }
     
     return headers;
@@ -28,8 +56,9 @@ class ApiService {
   // Generic request method
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
+    const headers = await this.getAuthHeaders();
     const config = {
-      headers: this.getAuthHeaders(),
+      headers,
       ...options,
     };
 
@@ -96,29 +125,60 @@ class ApiService {
     });
   }
 
-  // Club methods
+  async getAllUsers() {
+    return await this.request('/users');
+  }
+
+  async updateUserRole(userId, role) {
+    return await this.request(`/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  // Farm methods (renamed from clubs)
   async getClubs() {
-    return await this.request('/clubs');
+    return await this.request('/farms');
   }
 
   async getClubById(clubId) {
-    return await this.request(`/clubs/${clubId}`);
+    return await this.request(`/farms/${clubId}`);
+  }
+
+  async getClubBySlug(slug) {
+    return await this.request(`/farms/${slug}`);
   }
 
   async createClub(clubData) {
-    return await this.request('/clubs', {
+    return await this.request('/farms', {
       method: 'POST',
       body: JSON.stringify(clubData),
     });
   }
 
+  async getClubUsers(clubId) {
+    return await this.request(`/farms/${clubId}/users`);
+  }
+
+  // Farm settings methods (renamed from club-settings)
+  async getClubSettings(clubId) {
+    return await this.request(`/farm-settings/${clubId}`);
+  }
+
+  async updateClubSettings(clubId, settings) {
+    return await this.request(`/farm-settings/${clubId}`, {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    });
+  }
+
   // Club relationship methods
   async getUserClubRelationships() {
-    return await this.request('/users/me/clubs');
+    return await this.request('/users/me/farms');
   }
 
   async addClubRelationship(clubId, relationshipType) {
-    return await this.request('/users/me/clubs', {
+    return await this.request('/users/me/farms', {
       method: 'POST',
       body: JSON.stringify({ 
         club_id: clubId, 
@@ -128,19 +188,38 @@ class ApiService {
   }
 
   async removeClubRelationship(clubId) {
-    return await this.request(`/users/me/clubs/${clubId}`, {
+    return await this.request(`/users/me/farms/${clubId}`, {
       method: 'DELETE',
     });
   }
 
-  // Court methods
-  async getCourts(clubId = null) {
-    const endpoint = clubId ? `/courts?club_id=${clubId}` : '/courts';
-    return await this.request(endpoint);
+  // Camp methods (renamed from courts)
+  async getCourts(clubId) {
+    return await this.request(`/camps/club/${clubId}`);
+  }
+
+  async createCourt(clubId, courtData) {
+    return await this.request(`/camps/club/${clubId}`, {
+      method: 'POST',
+      body: JSON.stringify(courtData),
+    });
+  }
+
+  async updateCourt(courtId, courtData) {
+    return await this.request(`/camps/${courtId}`, {
+      method: 'PUT',
+      body: JSON.stringify(courtData),
+    });
+  }
+
+  async deleteCourt(courtId) {
+    return await this.request(`/camps/${courtId}`, {
+      method: 'DELETE',
+    });
   }
 
   async getCourtById(courtId) {
-    return await this.request(`/courts/${courtId}`);
+    return await this.request(`/camps/${courtId}`);
   }
 
   // Booking methods
@@ -187,6 +266,7 @@ class ApiService {
 // Create and export a singleton instance
 export const apiService = new ApiService();
 export default apiService;
+
 
 
 

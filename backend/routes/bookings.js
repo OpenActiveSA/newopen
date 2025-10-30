@@ -18,7 +18,7 @@ router.get('/my-bookings', authenticateToken, async (req, res) => {
       FROM bookings b
       JOIN clubs c ON b.club_id = c.id
       JOIN courts co ON b.court_id = co.id
-      WHERE b.user_id = $1
+      WHERE b.user_id = ?
       ORDER BY b.start_time DESC
     `, [userId]);
 
@@ -46,7 +46,7 @@ router.get('/club/:clubId', authenticateToken, requireClubAccess, async (req, re
       FROM bookings b
       JOIN users u ON b.user_id = u.id
       JOIN courts co ON b.court_id = co.id
-      WHERE b.club_id = $1
+      WHERE b.club_id = ?
     `;
 
     const queryParams = [clubId];
@@ -112,7 +112,7 @@ router.post('/', authenticateToken, [
     const clubAccess = await query(`
       SELECT relationship_type 
       FROM club_relationships 
-      WHERE user_id = $1 AND club_id = $2 AND is_active = true
+      WHERE user_id = ? AND club_id = ? AND is_active = true
     `, [userId, clubId]);
 
     if (clubAccess.rows.length === 0) {
@@ -123,7 +123,7 @@ router.post('/', authenticateToken, [
     const courtResult = await query(`
       SELECT id, hourly_rate 
       FROM courts 
-      WHERE id = $1 AND club_id = $2 AND is_active = true
+      WHERE id = ? AND club_id = ? AND is_active = true
     `, [courtId, clubId]);
 
     if (courtResult.rows.length === 0) {
@@ -138,12 +138,12 @@ router.post('/', authenticateToken, [
     const overlappingBookings = await query(`
       SELECT id 
       FROM bookings 
-      WHERE court_id = $1 
+      WHERE court_id = ? 
       AND status IN ('pending', 'confirmed')
       AND (
-        (start_time <= $2 AND end_time > $2) OR
-        (start_time < $3 AND end_time >= $3) OR
-        (start_time >= $2 AND end_time <= $3)
+        (start_time <= ? AND end_time > ?) OR
+        (start_time < ? AND end_time >= ?) OR
+        (start_time >= ? AND end_time <= ?)
       )
     `, [courtId, startTime, endTime]);
 
@@ -154,7 +154,7 @@ router.post('/', authenticateToken, [
     // Create booking
     const result = await query(`
       INSERT INTO bookings (user_id, club_id, court_id, start_time, end_time, total_amount, notes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
       RETURNING id, start_time, end_time, status, total_amount, notes, created_at
     `, [userId, clubId, courtId, startTime, endTime, totalAmount, notes]);
 
@@ -193,7 +193,7 @@ router.put('/:bookingId/status', authenticateToken, [
       SELECT b.*, c.name as club_name
       FROM bookings b
       JOIN clubs c ON b.club_id = c.id
-      WHERE b.id = $1
+      WHERE b.id = ?
     `, [bookingId]);
 
     if (bookingResult.rows.length === 0) {
@@ -209,7 +209,7 @@ router.put('/:bookingId/status', authenticateToken, [
       (await query(`
         SELECT relationship_type 
         FROM club_relationships 
-        WHERE user_id = $1 AND club_id = $2 AND relationship_type = 'manager' AND is_active = true
+        WHERE user_id = ? AND club_id = ? AND relationship_type = 'manager' AND is_active = true
       `, [userId, booking.club_id])).rows.length > 0; // Club manager
 
     if (!canUpdate) {
@@ -219,8 +219,8 @@ router.put('/:bookingId/status', authenticateToken, [
     // Update booking status
     const result = await query(`
       UPDATE bookings 
-      SET status = $1, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $2
+      SET status = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
       RETURNING id, status, updated_at
     `, [status, bookingId]);
 
@@ -243,7 +243,7 @@ router.put('/:bookingId/cancel', authenticateToken, async (req, res) => {
 
     // Get booking details
     const bookingResult = await query(
-      'SELECT * FROM bookings WHERE id = $1',
+      'SELECT * FROM bookings WHERE id = ?',
       [bookingId]
     );
 
@@ -271,7 +271,7 @@ router.put('/:bookingId/cancel', authenticateToken, async (req, res) => {
     const result = await query(`
       UPDATE bookings 
       SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
-      WHERE id = $1
+      WHERE id = ?
       RETURNING id, status, updated_at
     `, [bookingId]);
 
@@ -303,7 +303,7 @@ router.get('/:bookingId', authenticateToken, async (req, res) => {
       JOIN clubs c ON b.club_id = c.id
       JOIN courts co ON b.court_id = co.id
       JOIN users u ON b.user_id = u.id
-      WHERE b.id = $1
+      WHERE b.id = ?
     `, [bookingId]);
 
     if (result.rows.length === 0) {
@@ -319,7 +319,7 @@ router.get('/:bookingId', authenticateToken, async (req, res) => {
       (await query(`
         SELECT relationship_type 
         FROM club_relationships 
-        WHERE user_id = $1 AND club_id = $2 AND is_active = true
+        WHERE user_id = ? AND club_id = ? AND is_active = true
       `, [userId, booking.club_id])).rows.length > 0; // Club member
 
     if (!canView) {
@@ -337,6 +337,11 @@ router.get('/:bookingId', authenticateToken, async (req, res) => {
 });
 
 module.exports = router;
+
+
+
+
+
 
 
 

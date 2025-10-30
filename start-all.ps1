@@ -1,4 +1,4 @@
-Write-Host "Starting Open Active Tennis Booking System..." -ForegroundColor Green
+Write-Host "Starting Open Farm Tennis Booking System..." -ForegroundColor Green
 Write-Host ""
 
 Write-Host "1. Starting Backend API Server..." -ForegroundColor Yellow

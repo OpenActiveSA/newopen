@@ -7,7 +7,7 @@ export function SetupMessage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: '#052333',
+      background: '#8b7b54',
       color: '#fff',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif',
       padding: '2rem'
@@ -21,7 +21,7 @@ export function SetupMessage() {
         border: '1px solid rgba(255, 255, 255, 0.2)'
       }}>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: '#fff' }}>
-          🎾 Open Active
+          🎾 Open Farm
         </h1>
         <h2 style={{ fontSize: '1.5rem', marginBottom: '2rem', color: 'rgba(255, 255, 255, 0.9)' }}>
           Database Setup Required
@@ -37,7 +37,7 @@ export function SetupMessage() {
         }}>
           <h3 style={{ color: '#ffc107', marginBottom: '1rem' }}>⚠️ Supabase Not Configured</h3>
           <p style={{ marginBottom: '1rem' }}>
-            To use the full functionality of Open Active, you need to set up a Supabase database.
+            To use the full functionality of Open Farm, you need to set up a Supabase database.
           </p>
           <p style={{ marginBottom: '0' }}>
             The app is currently running in demo mode with limited functionality.

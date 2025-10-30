@@ -5,10 +5,13 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
+const { query } = require('./config/database');
 const userRoutes = require('./routes/users');
 const clubRoutes = require('./routes/clubs');
+const farmsRoutes = require('./routes/farms');
 const bookingRoutes = require('./routes/bookings');
 const courtRoutes = require('./routes/courts');
+const clubSettingsRoutes = require('./routes/club-settings');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,17 +19,23 @@ const PORT = process.env.PORT || 5000;
 // Security middleware
 app.use(helmet());
 
-// Rate limiting
+// Rate limiting (more relaxed for development)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 1000, // limit each IP to 1000 requests per windowMs (increased for dev)
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use(limiter);
 
-// CORS configuration
+// CORS configuration - allow any localhost port in development
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    const allowedEnv = process.env.FRONTEND_URL;
+    if (!origin) return callback(null, true); // non-browser or same-origin
+    if (allowedEnv && origin === allowedEnv) return callback(null, true);
+    if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
+    return callback(null, false);
+  },
   credentials: true
 }));
 
@@ -38,17 +47,34 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    message: 'Open Active Backend is running',
+    message: 'Open Farm Backend is running',
     timestamp: new Date().toISOString()
   });
+});
+
+// Database check - returns the current database name
+app.get('/health/db', async (req, res) => {
+  try {
+    const result = await query('SELECT DATABASE() AS db');
+    res.json({ database: result.rows?.[0]?.db || null });
+  } catch (e) {
+    res.status(500).json({ error: 'DB check failed', details: e.message });
+  }
 });
 
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/clubs', clubRoutes);
+// New farms routes (newfarm schema)
+app.use('/api/farms', farmsRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/courts', courtRoutes);
+// New alias: camps (maps to courts routes)
+app.use('/api/camps', courtRoutes);
+app.use('/api/club-settings', clubSettingsRoutes);
+// New alias: farm-settings (maps to club-settings routes)
+app.use('/api/farm-settings', clubSettingsRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -83,12 +109,14 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Open Active Backend running on port ${PORT}`);
+  console.log(`🚀 Open Farm Backend running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 module.exports = app;
+
+
 
 
 

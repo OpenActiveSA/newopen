@@ -1,6 +1,6 @@
-# Open Active Database Setup
+# Open Farm Database Setup
 
-This guide will help you set up the Supabase database for the Open Active tennis booking system.
+This guide will help you set up the Supabase database for the Open Farm tennis booking system.
 
 ## 🚀 Quick Setup
 
@@ -180,7 +180,12 @@ events
 └── is_public (boolean)
 ```
 
-Your database is now ready for the Open Active tennis booking system! 🎾
+Your database is now ready for the Open Farm tennis booking system! 🎾
+
+
+
+
+
 
 
 

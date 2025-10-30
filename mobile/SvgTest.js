@@ -115,7 +115,7 @@ export default function SvgTest() {
       
       <View style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Local Open Active Icons</Text>
+          <Text style={styles.sectionLabel}>Local Open Farm Icons</Text>
           <View style={styles.iconRow}>
             <LineSvg label="Lock">
               <Icon name="lock" size={32} color="white" />
@@ -161,7 +161,7 @@ export default function SvgTest() {
       </View>
       
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Open Active Tennis Booking System</Text>
+        <Text style={styles.footerText}>Open Farm Tennis Booking System</Text>
         <Text style={styles.footerText}>SVG Test Page</Text>
       </View>
     </ScrollView>

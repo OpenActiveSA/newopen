@@ -1,5 +1,8 @@
 // Custom API service for our backend
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL =
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE)
+    ? import.meta.env.VITE_API_BASE
+    : 'http://localhost:5002/api';
 
 class ApiService {
   constructor() {
@@ -23,8 +26,10 @@ class ApiService {
       'Content-Type': 'application/json',
     };
     
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    // Always get the latest token from localStorage
+    const currentToken = localStorage.getItem('auth_token');
+    if (currentToken) {
+      headers['Authorization'] = `Bearer ${currentToken}`;
     }
     
     return headers;
@@ -101,29 +106,60 @@ class ApiService {
     });
   }
 
-  // Club methods
+  async getAllUsers() {
+    return await this.request('/users');
+  }
+
+  async updateUserRole(userId, role) {
+    return await this.request(`/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  // Farm methods (renamed from clubs)
   async getClubs() {
-    return await this.request('/clubs');
+    return await this.request('/farms');
   }
 
   async getClubById(clubId) {
-    return await this.request(`/clubs/${clubId}`);
+    return await this.request(`/farms/${clubId}`);
+  }
+
+  async getClubBySlug(slug) {
+    return await this.request(`/farms/${slug}`);
   }
 
   async createClub(clubData) {
-    return await this.request('/clubs', {
+    return await this.request('/farms', {
       method: 'POST',
       body: JSON.stringify(clubData),
     });
   }
 
+  async getClubUsers(clubId) {
+    return await this.request(`/farms/${clubId}/users`);
+  }
+
+  // Farm settings methods (renamed from club-settings)
+  async getClubSettings(clubId) {
+    return await this.request(`/farm-settings/${clubId}`);
+  }
+
+  async updateClubSettings(clubId, settings) {
+    return await this.request(`/farm-settings/${clubId}`, {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    });
+  }
+
   // Club relationship methods
   async getUserClubRelationships() {
-    return await this.request('/users/me/clubs');
+    return await this.request('/users/me/farms');
   }
 
   async addClubRelationship(clubId, relationshipType) {
-    return await this.request('/users/me/clubs', {
+    return await this.request('/users/me/farms', {
       method: 'POST',
       body: JSON.stringify({ 
         club_id: clubId, 
@@ -133,19 +169,38 @@ class ApiService {
   }
 
   async removeClubRelationship(clubId) {
-    return await this.request(`/users/me/clubs/${clubId}`, {
+    return await this.request(`/users/me/farms/${clubId}`, {
       method: 'DELETE',
     });
   }
 
-  // Court methods
-  async getCourts(clubId = null) {
-    const endpoint = clubId ? `/courts?club_id=${clubId}` : '/courts';
-    return await this.request(endpoint);
+  // Camp methods (renamed from courts)
+  async getCourts(clubId) {
+    return await this.request(`/camps/club/${clubId}`);
+  }
+
+  async createCourt(clubId, courtData) {
+    return await this.request(`/camps/club/${clubId}`, {
+      method: 'POST',
+      body: JSON.stringify(courtData),
+    });
+  }
+
+  async updateCourt(courtId, courtData) {
+    return await this.request(`/camps/${courtId}`, {
+      method: 'PUT',
+      body: JSON.stringify(courtData),
+    });
+  }
+
+  async deleteCourt(courtId) {
+    return await this.request(`/camps/${courtId}`, {
+      method: 'DELETE',
+    });
   }
 
   async getCourtById(courtId) {
-    return await this.request(`/courts/${courtId}`);
+    return await this.request(`/camps/${courtId}`);
   }
 
   // Booking methods
@@ -192,6 +247,7 @@ class ApiService {
 // Create and export a singleton instance
 export const apiService = new ApiService();
 export default apiService;
+
 
 
 

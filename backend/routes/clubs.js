@@ -27,6 +27,80 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get club by ID (numeric only)
+router.get('/:clubId(\\d+)', async (req, res) => {
+  try {
+    const { clubId } = req.params;
+
+    const result = await query(`
+      SELECT 
+        id, name, slug, description, address, phone, email, website, logo_url,
+        settings, is_active, created_at
+      FROM clubs 
+      WHERE id = ? AND is_active = true
+    `, [clubId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Club not found' });
+    }
+
+    res.json({
+      club: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Get club by ID error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get all users for a club (club managers only)
+router.get('/:clubId/users', authenticateToken, async (req, res) => {
+  try {
+    const { clubId } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    // Check if user is club manager or OpenActive admin
+    if (userRole !== 'openactive_user') {
+      const managerCheck = await query(`
+        SELECT id FROM club_relationships 
+        WHERE user_id = ? AND club_id = ? AND relationship_type = 'manager' AND is_active = true
+      `, [userId, clubId]);
+
+      if (managerCheck.rows.length === 0) {
+        return res.status(403).json({ error: 'Club manager access required' });
+      }
+    }
+
+    // Get all users related to this club
+    const result = await query(`
+      SELECT 
+        u.id,
+        u.email,
+        u.name,
+        u.phone,
+        u.role as global_role,
+        cr.relationship_type as role,
+        cr.joined_at,
+        cr.is_active
+      FROM club_relationships cr
+      JOIN users u ON cr.user_id = u.id
+      WHERE cr.club_id = ?
+      ORDER BY cr.relationship_type, u.name
+    `, [clubId]);
+
+    res.json({
+      clubId: parseInt(clubId),
+      users: result.rows
+    });
+
+  } catch (error) {
+    console.error('Get club users error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get club by slug
 router.get('/:slug', async (req, res) => {
   try {
@@ -37,7 +111,7 @@ router.get('/:slug', async (req, res) => {
         id, name, slug, description, address, phone, email, website, logo_url,
         settings, is_active, created_at
       FROM clubs 
-      WHERE slug = $1 AND is_active = true
+      WHERE slug = ? AND is_active = true
     `, [slug]);
 
     if (result.rows.length === 0) {
@@ -78,7 +152,7 @@ router.post('/', authenticateToken, [
 
     // Check if slug already exists
     const existingClub = await query(
-      'SELECT id FROM clubs WHERE slug = $1',
+      'SELECT id FROM clubs WHERE slug = ?',
       [slug]
     );
 
@@ -86,19 +160,25 @@ router.post('/', authenticateToken, [
       return res.status(400).json({ error: 'Club slug already exists' });
     }
 
-    // Create club
-    const clubResult = await query(`
+    // Create club (MySQL: insert then select by insertId)
+    const insertResult = await query(`
       INSERT INTO clubs (name, slug, description, address, phone, email, website)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING id, name, slug, description, address, phone, email, website, created_at
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `, [name, slug, description, address, phone, email, website]);
 
-    const club = clubResult.rows[0];
+    const newId = insertResult.rows?.insertId || insertResult.insertId;
+    const clubFetch = await query(`
+      SELECT id, name, slug, description, address, phone, email, website, created_at
+      FROM clubs
+      WHERE id = ?
+    `, [newId]);
+
+    const club = clubFetch.rows[0];
 
     // Add creator as manager
     await query(`
       INSERT INTO club_relationships (user_id, club_id, relationship_type)
-      VALUES ($1, $2, 'manager')
+      VALUES (?, ?, 'manager')
     `, [userId, club.id]);
 
     res.status(201).json({
@@ -138,15 +218,15 @@ router.put('/:clubId', authenticateToken, requireClubManager, [
     const result = await query(`
       UPDATE clubs 
       SET 
-        name = COALESCE($1, name),
-        description = COALESCE($2, description),
-        address = COALESCE($3, address),
-        phone = COALESCE($4, phone),
-        email = COALESCE($5, email),
-        website = COALESCE($6, website),
-        settings = COALESCE($7, settings),
+        name = COALESCE(?, name),
+        description = COALESCE(?, description),
+        address = COALESCE(?, address),
+        phone = COALESCE(?, phone),
+        email = COALESCE(?, email),
+        website = COALESCE(?, website),
+        settings = COALESCE(?, settings),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $8
+      WHERE id = ?
       RETURNING id, name, slug, description, address, phone, email, website, settings, updated_at
     `, [name, description, address, phone, email, website, settings, clubId]);
 
@@ -176,7 +256,7 @@ router.get('/:clubId/members', authenticateToken, requireClubAccess, async (req,
         cr.relationship_type, cr.joined_at
       FROM club_relationships cr
       JOIN users u ON cr.user_id = u.id
-      WHERE cr.club_id = $1 AND cr.is_active = true
+      WHERE cr.club_id = ? AND cr.is_active = true
       ORDER BY cr.joined_at
     `, [clubId]);
 
@@ -210,7 +290,7 @@ router.post('/:clubId/members', authenticateToken, requireClubManager, [
 
     // Check if user exists
     const userResult = await query(
-      'SELECT id, name, email FROM users WHERE id = $1',
+      'SELECT id, name, email FROM users WHERE id = ?',
       [userId]
     );
 
@@ -220,7 +300,7 @@ router.post('/:clubId/members', authenticateToken, requireClubManager, [
 
     // Check if relationship already exists
     const existingRelationship = await query(
-      'SELECT id FROM club_relationships WHERE user_id = $1 AND club_id = $2',
+      'SELECT id FROM club_relationships WHERE user_id = ? AND club_id = ?',
       [userId, clubId]
     );
 
@@ -231,7 +311,7 @@ router.post('/:clubId/members', authenticateToken, requireClubManager, [
     // Add user to club
     await query(`
       INSERT INTO club_relationships (user_id, club_id, relationship_type)
-      VALUES ($1, $2, $3)
+      VALUES (?, ?, ?)
     `, [userId, clubId, relationshipType]);
 
     res.status(201).json({
@@ -255,7 +335,7 @@ router.delete('/:clubId/members/:userId', authenticateToken, requireClubManager,
     const result = await query(`
       UPDATE club_relationships 
       SET is_active = false, updated_at = CURRENT_TIMESTAMP
-      WHERE user_id = $1 AND club_id = $2
+      WHERE user_id = ? AND club_id = ?
       RETURNING id
     `, [userId, clubId]);
 
@@ -282,21 +362,21 @@ router.get('/:clubId/stats', authenticateToken, requireClubManager, async (req, 
     const memberCount = await query(`
       SELECT COUNT(*) as count 
       FROM club_relationships 
-      WHERE club_id = $1 AND is_active = true
+      WHERE club_id = ? AND is_active = true
     `, [clubId]);
 
     // Get court count
     const courtCount = await query(`
       SELECT COUNT(*) as count 
       FROM courts 
-      WHERE club_id = $1 AND is_active = true
+      WHERE club_id = ? AND is_active = true
     `, [clubId]);
 
     // Get booking count (last 30 days)
     const bookingCount = await query(`
       SELECT COUNT(*) as count 
       FROM bookings 
-      WHERE club_id = $1 AND created_at >= NOW() - INTERVAL '30 days'
+      WHERE club_id = ? AND created_at >= NOW() - INTERVAL '30 days'
     `, [clubId]);
 
     res.json({
@@ -314,6 +394,7 @@ router.get('/:clubId/stats', authenticateToken, requireClubManager, async (req, 
 });
 
 module.exports = router;
+
 
 
 

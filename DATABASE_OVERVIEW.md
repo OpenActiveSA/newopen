@@ -1,12 +1,12 @@
-# Open Active Database System - Cross-Platform
+# Open Farm Database System - Cross-Platform
 
-The Open Active tennis booking system uses a **single, shared database** that works seamlessly across both web and mobile platforms.
+The Open Farm tennis booking system uses a **single, shared database** that works seamlessly across both web and mobile platforms.
 
 ## 🌐 **Cross-Platform Architecture**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Open Active System                       │
+│                    Open Farm System                       │
 ├─────────────────────────────────────────────────────────────┤
 │  Web App (React)           │  Mobile App (React Native)    │
 │  ┌─────────────────────┐   │  ┌─────────────────────┐      │
@@ -245,6 +245,11 @@ cp env.example .env
 5. **Deploy both platforms** with confidence
 
 The database system is designed to scale with your needs and provide a seamless experience across all platforms! 🎾
+
+
+
+
+
 
 
 

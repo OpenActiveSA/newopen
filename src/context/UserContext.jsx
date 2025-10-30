@@ -111,14 +111,16 @@ export function UserProvider({ children }) {
       ])
 
       const clubRelationships = {}
+      console.log('📊 Raw relationships from API:', relationships)
       relationships.forEach(rel => {
         clubRelationships[rel.club_id] = {
           role: rel.relationship_type,
-          clubName: rel.club?.name,
+          clubName: rel.club_name || rel.club?.name,
           joinedAt: rel.joined_at,
           permissions: rel.permissions || {}
         }
       })
+      console.log('🏢 Processed club relationships:', clubRelationships)
 
       dispatch({
         type: 'LOGIN',
@@ -211,7 +213,7 @@ export function UserProvider({ children }) {
   // Get all clubs user has relationships with
   const getUserClubs = () => {
     return Object.keys(state.clubRelationships).map(clubId => ({
-      clubId,
+      clubId: parseInt(clubId), // Convert to number for consistent comparison
       ...state.clubRelationships[clubId]
     }))
   }

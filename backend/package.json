@@ -1,12 +1,14 @@
 {
   "name": "openactive-backend",
   "version": "1.0.0",
-  "description": "Open Active Tennis Booking System Backend",
+  "description": "Open Farm Tennis Booking System Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "migrate": "node scripts/migrate.js"
+    "dev": "npx kill-port 5000 || true && nodemon server.js",
+    "dev:5001": "set PORT=5001&& npx kill-port 5001 || true && nodemon server.js",
+    "migrate": "node scripts/migrate.js",
+    "setup-db": "node scripts/setup-database.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -29,9 +31,10 @@
     "api",
     "backend"
   ],
-  "author": "Open Active",
+  "author": "Open Farm",
   "license": "MIT"
 }
+
 
 
 

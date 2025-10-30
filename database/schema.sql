@@ -1,5 +1,5 @@
--- Open Active Database Schema
--- This file contains the complete database schema for the Open Active tennis booking system
+-- Open Farm Database Schema
+-- This file contains the complete database schema for the Open Farm tennis booking system
 
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

@@ -128,7 +128,7 @@ export default function SvgTest() {
       </header>
       <div className="page-content">
         <div className="section">
-          <h2 className="section-label">Local Open Active Icons</h2>
+          <h2 className="section-label">Local Open Farm Icons</h2>
           <div className="icon-row">
             <LineSvg label="Lock">
               <Icon name="lock" size={32} color="white" />
@@ -174,7 +174,7 @@ export default function SvgTest() {
       </div>
       <footer className="footer main-footer">
         <div className="footer-content">
-          <div>Open Active Tennis Booking System</div>
+          <div>Open Farm Tennis Booking System</div>
           <div>SVG Test Page</div>
         </div>
       </footer>

@@ -1,6 +1,6 @@
-# Open Active Mobile App
+# Open Farm Mobile App
 
-The mobile app for the Open Active tennis booking system, built with React Native and Expo. Now uses your custom backend instead of Supabase!
+The mobile app for the Open Farm tennis booking system, built with React Native and Expo. Now uses your custom backend instead of Supabase!
 
 ## 🚀 Quick Start
 
@@ -167,7 +167,7 @@ EXPO_PUBLIC_API_URL=http://localhost:5000/api
 
 ### **App Configuration**
 - Bundle identifier: `com.openactive.mobile`
-- App name: "Open Active"
+- App name: "Open Farm"
 - Icon and splash screen configured
 
 ## 🆘 Troubleshooting

@@ -1,6 +1,6 @@
-# Open Active Backend
+# Open Farm Backend
 
-A complete Node.js backend for the Open Active tennis booking system.
+A complete Node.js backend for the Open Farm tennis booking system.
 
 ## 🚀 Quick Start
 
@@ -294,7 +294,12 @@ For issues or questions:
 3. Test database connectivity
 4. Check API endpoint documentation
 
-Your custom backend is now ready for the Open Active tennis booking system! 🎾
+Your custom backend is now ready for the Open Farm tennis booking system! 🎾
+
+
+
+
+
 
 
 

@@ -1,5 +1,5 @@
-# Open Active Tennis Booking System - Startup Script
-Write-Host "🚀 Starting Open Active Tennis Booking System..." -ForegroundColor Green
+# Open Farm Tennis Booking System - Startup Script
+Write-Host "🚀 Starting Open Farm Tennis Booking System..." -ForegroundColor Green
 Write-Host ""
 
 # Kill any existing Node.js processes

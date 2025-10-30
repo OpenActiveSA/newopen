@@ -1,4 +1,4 @@
-# Open Active - Tennis Booking System
+# Open Farm - Tennis Booking System
 
 A modern tennis booking system with web and mobile applications.
 
@@ -23,7 +23,7 @@ A modern tennis booking system with web and mobile applications.
 
 3. **Open in browser:**
    - Navigate to `http://localhost:3000`
-   - You should see "Open Active" screen
+   - You should see "Open Farm" screen
 
 ### Mobile Application (Local Development)
 
@@ -54,7 +54,7 @@ A modern tennis booking system with web and mobile applications.
 1. **Push to GitHub:**
    ```bash
    git add .
-   git commit -m "Initial Open Active setup"
+   git commit -m "Initial Open Farm setup"
    git push origin main
    ```
 

@@ -32,11 +32,11 @@ router.post('/register', [
       });
     }
 
-    const { email, password, name, phone } = req.body;
+    const { email, password, name } = req.body;
 
     // Check if user already exists
     const existingUser = await query(
-      'SELECT id FROM users WHERE email = $1',
+      'SELECT id FROM users WHERE email = ?',
       [email]
     );
 
@@ -48,14 +48,21 @@ router.post('/register', [
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user
-    const result = await query(`
-      INSERT INTO users (email, password_hash, name, phone)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, email, name, role, created_at
-    `, [email, passwordHash, name, phone || null]);
+    // Create user (MySQL/MariaDB: get insertId then select)
+    // newfarm schema: users(email, password_hash, display_name, locale, is_active, created_at)
+    const insertResult = await query(`
+      INSERT INTO users (email, password_hash, display_name, locale, is_active)
+      VALUES (?, ?, ?, 'en', 1)
+    `, [email, passwordHash, name || '']);
 
-    const user = result.rows[0];
+    const newUserId = insertResult.rows?.insertId || insertResult.insertId;
+    const userSelect = await query(`
+      SELECT id, email, display_name AS name, created_at
+      FROM users
+      WHERE id = ?
+    `, [newUserId]);
+
+    const user = userSelect.rows[0];
     const token = generateToken(user.id);
 
     res.status(201).json({
@@ -64,7 +71,6 @@ router.post('/register', [
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role,
         created_at: user.created_at
       },
       token
@@ -95,7 +101,7 @@ router.post('/login', [
 
     // Get user from database
     const result = await query(
-      'SELECT id, email, password_hash, name, role FROM users WHERE email = $1',
+      'SELECT id, email, password_hash, display_name AS name FROM users WHERE email = ?',
       [email]
     );
 
@@ -114,26 +120,12 @@ router.post('/login', [
     // Generate token
     const token = generateToken(user.id);
 
-    // Get user's club relationships
-    const clubRelationships = await query(`
-      SELECT 
-        cr.club_id,
-        cr.relationship_type,
-        cr.joined_at,
-        c.name as club_name
-      FROM club_relationships cr
-      JOIN clubs c ON cr.club_id = c.id
-      WHERE cr.user_id = $1 AND cr.is_active = true
-    `, [user.id]);
+    // Relationships are farm-scoped in new schema; return empty for now
+    const clubRelationships = { rows: [] };
 
     res.json({
       message: 'Login successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      },
+      user: { id: user.id, email: user.email, name: user.name },
       clubRelationships: clubRelationships.rows,
       token
     });
@@ -151,8 +143,8 @@ router.get('/me', authenticateToken, async (req, res) => {
 
     // Get user details
     const userResult = await query(`
-      SELECT id, email, name, phone, role, avatar_url, created_at
-      FROM users WHERE id = $1
+      SELECT id, email, display_name AS name, created_at
+      FROM users WHERE id = ?
     `, [userId]);
 
     if (userResult.rows.length === 0) {
@@ -161,24 +153,11 @@ router.get('/me', authenticateToken, async (req, res) => {
 
     const user = userResult.rows[0];
 
-    // Get user's club relationships
-    const clubRelationships = await query(`
-      SELECT 
-        cr.club_id,
-        cr.relationship_type,
-        cr.joined_at,
-        c.name as club_name,
-        c.slug as club_slug
-      FROM club_relationships cr
-      JOIN clubs c ON cr.club_id = c.id
-      WHERE cr.user_id = $1 AND cr.is_active = true
-    `, [userId]);
+    // Farm relationships not yet implemented here; return empty for now
+    const clubRelationships = { rows: [] };
 
     res.json({
-      user: {
-        ...user,
-        clubRelationships: clubRelationships.rows
-      }
+      user: { ...user, clubRelationships: clubRelationships.rows }
     });
 
   } catch (error) {
@@ -189,8 +168,7 @@ router.get('/me', authenticateToken, async (req, res) => {
 
 // Update user profile
 router.put('/profile', authenticateToken, [
-  body('name').optional().trim().isLength({ min: 1 }),
-  body('phone').optional().isMobilePhone()
+  body('name').optional().trim().isLength({ min: 1 })
 ], async (req, res) => {
   try {
     // Check validation errors
@@ -203,26 +181,24 @@ router.put('/profile', authenticateToken, [
     }
 
     const userId = req.user.id;
-    const { name, phone } = req.body;
+    const { name } = req.body;
 
     // Update user
-    const result = await query(`
-      UPDATE users 
-      SET name = COALESCE($1, name), 
-          phone = COALESCE($2, phone),
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = $3
-      RETURNING id, email, name, phone, role, avatar_url, updated_at
-    `, [name, phone, userId]);
+    await query(
+      `UPDATE users SET display_name = COALESCE(?, display_name), updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+      [name, userId]
+    );
 
-    if (result.rows.length === 0) {
+    const refreshed = await query(
+      `SELECT id, email, display_name AS name, created_at FROM users WHERE id = ?`,
+      [userId]
+    );
+
+    if (refreshed.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({
-      message: 'Profile updated successfully',
-      user: result.rows[0]
-    });
+    res.json({ message: 'Profile updated successfully', user: refreshed.rows[0] });
 
   } catch (error) {
     console.error('Update profile error:', error);
@@ -250,7 +226,7 @@ router.put('/password', authenticateToken, [
 
     // Get current password hash
     const result = await query(
-      'SELECT password_hash FROM users WHERE id = $1',
+      'SELECT password_hash FROM users WHERE id = ?',
       [userId]
     );
 
@@ -270,7 +246,7 @@ router.put('/password', authenticateToken, [
 
     // Update password
     await query(
-      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      'UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       [newPasswordHash, userId]
     );
 
@@ -288,6 +264,11 @@ router.post('/logout', authenticateToken, (req, res) => {
 });
 
 module.exports = router;
+
+
+
+
+
 
 
 

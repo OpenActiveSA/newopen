@@ -1,12 +1,15 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
+// Force this project to use the 'newfarm' database unless you change it here explicitly
+const FORCED_DB_NAME = 'newfarm';
+
 // Database configuration
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'openactive',
+  database: FORCED_DB_NAME,
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
@@ -22,7 +25,7 @@ const pool = mysql.createPool(dbConfig);
 const testConnection = async () => {
   try {
     const connection = await pool.getConnection();
-    console.log('✅ Connected to MySQL database');
+    console.log(`✅ Connected to MySQL database (db=${dbConfig.database})`);
     connection.release();
   } catch (error) {
     console.error('❌ Database connection error:', error);
