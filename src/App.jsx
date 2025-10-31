@@ -13,7 +13,7 @@ import './App.css'
 
 function FullScreenMenu({ isOpen, onClose }) {
   const navigate = useNavigate()
-  const { isAuthenticated, user, globalRole, getUserClubs } = useUser()
+  const { isAuthenticated, user, globalRole, getUserClubs, logout } = useUser()
   const { canAccessAdmin, canAccessClubAdmin } = usePermissions()
 
   console.log('🎯 Menu Debug:', { isAuthenticated, user, globalRole })
@@ -23,10 +23,32 @@ function FullScreenMenu({ isOpen, onClose }) {
     onClose()
   }
 
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } finally {
+      onClose()
+      navigate('/')
+    }
+  }
+
   if (!isOpen) return null
 
   const userClubs = getUserClubs()
   console.log('🎯 User Clubs:', userClubs)
+  
+  // Check if user has openfarm_user role
+  const userRoles = user?.roles || []
+  const isOpenFarmUser = userRoles.includes('openfarm_user')
+  
+  // Debug logging
+  console.log('🔍 Menu Debug - User roles:', { 
+    user, 
+    userRoles, 
+    isOpenFarmUser,
+    hasRoles: !!user?.roles,
+    rolesArray: user?.roles 
+  })
 
   return (
     <div className="full-screen-menu-overlay" onClick={onClose}>
@@ -53,9 +75,9 @@ function FullScreenMenu({ isOpen, onClose }) {
             </>
           ) : (
             <>
-              {globalRole === 'openactive_user' && (
+              {isOpenFarmUser && (
                 <div className="menu-item" onClick={() => handleMenuClick('/admin')}>
-                  System Admin
+                  Admin
                 </div>
               )}
               
@@ -81,8 +103,8 @@ function FullScreenMenu({ isOpen, onClose }) {
                 </>
               )}
               
-              <div className="menu-item" onClick={() => handleMenuClick('/register')}>
-                Register
+              <div className="menu-item" onClick={handleLogout}>
+                Logout
               </div>
             </>
           )}
@@ -94,18 +116,24 @@ function FullScreenMenu({ isOpen, onClose }) {
 
 function MainHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { isAuthenticated } = useUser()
+  const { isAuthenticated, user } = useUser()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
 
+  const displayName = user?.name || user?.display_name || user?.email
+
   return (
     <>
       <header className="header main-header">
-        <div className="burger-menu" onClick={toggleMenu}>☰</div>
-        <div className="header-title">Main Header</div>
-        {isAuthenticated && <UserProfile />}
+        <div className="header-title">Open Farm Manager</div>
+        <div className="header-right">
+          {isAuthenticated && displayName && (
+            <div className="user-name">{displayName}</div>
+          )}
+          <div className="burger-menu" onClick={toggleMenu} title={displayName ? `Menu • ${displayName}` : 'Menu'}>☰</div>
+        </div>
       </header>
       <FullScreenMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </>
@@ -385,10 +413,17 @@ function Clubs() {
             <div style={{ marginBottom: '12px', textAlign: 'right' }}>
               <button className="btn-primary" onClick={() => navigate('/farms/create')}>Create New Farm</button>
             </div>
-            {filteredClubs.map(club => (
+            {filteredClubs.map(club => {
+              // Generate slug from farm name if not provided
+              const slug = club.slug || (club.name || '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '') || club.id
+              
+              return (
               <div 
                 key={club.id} 
-                onClick={() => navigate(`/club/${club.slug}`)}
+                onClick={() => navigate(`/farm/${slug}`)}
                 className="club-card"
                 style={{
                   cursor: 'pointer',
@@ -500,7 +535,8 @@ function Clubs() {
                   </span>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
@@ -994,15 +1030,27 @@ function FarmCreate() {
 
 function FarmHeader({ slug, active }) {
   const navigate = useNavigate()
+  const { isAuthenticated, user } = useUser()
+  
+  // Generate display name from slug
+  const displayName = slug ? slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ') : 'Farm'
+  
   return (
     <header className="header club-header">
       <div className="back-arrow" onClick={() => navigate('/farms')}>←</div>
-      <div className="header-title">Farm</div>
+      <div className="header-title">{displayName}</div>
       <nav style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
         <span className="menu-link" onClick={() => navigate(`/farm/${slug}`)} style={{ opacity: active==='overview'?1:0.7 }}>Overview</span>
         <span className="menu-link" onClick={() => navigate(`/farm/${slug}/animals`)} style={{ opacity: active==='animals'?1:0.7 }}>Animal Management</span>
         <span className="menu-link" onClick={() => navigate(`/farm/${slug}/rainfall`)} style={{ opacity: active==='rainfall'?1:0.7 }}>Rainfall</span>
+        <span className="menu-link" onClick={() => navigate(`/club/${slug}/admin`)} style={{ opacity: active==='settings'?1:0.7 }}>Settings</span>
       </nav>
+      {isAuthenticated && (
+        <div className="user-name" style={{ marginLeft: '12px' }}>{user?.name || user?.display_name || user?.email}</div>
+      )}
     </header>
   )
 }

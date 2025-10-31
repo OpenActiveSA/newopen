@@ -89,6 +89,23 @@ export function UserProvider({ children }) {
         const token = localStorage.getItem('auth_token')
         if (token) {
           apiService.setToken(token)
+          // Optimistically hydrate user from localStorage if available
+          const cachedProfileRaw = localStorage.getItem('user_profile')
+          if (cachedProfileRaw) {
+            try {
+              const cachedProfile = JSON.parse(cachedProfileRaw)
+              if (cachedProfile && cachedProfile.email) {
+                dispatch({
+                  type: 'LOGIN',
+                  payload: {
+                    user: cachedProfile,
+                    globalRole: cachedProfile.role || null,
+                    clubRelationships: {}
+                  }
+                })
+              }
+            } catch {}
+          }
           await loadUserData()
         } else {
           dispatch({ type: 'SET_LOADING', payload: false })
@@ -122,18 +139,20 @@ export function UserProvider({ children }) {
       })
       console.log('🏢 Processed club relationships:', clubRelationships)
 
+      console.log('📦 Loading user data - Profile:', profile)
+      console.log('📦 Profile roles:', profile?.roles)
+      
       dispatch({
         type: 'LOGIN',
         payload: {
-          user: profile,
-          globalRole: profile?.role,
+          user: profile, // This should include roles array from backend
+          globalRole: profile?.role || profile?.roles?.[0] || null,
           clubRelationships
         }
       })
     } catch (error) {
       console.error('Error loading user data:', error)
-      // If we can't load user data, the token might be invalid
-      apiService.logout()
+      // Non-fatal in UI: keep any existing auth state; just stop loading
       dispatch({ type: 'SET_LOADING', payload: false })
     }
   }
@@ -142,7 +161,30 @@ export function UserProvider({ children }) {
   const login = async (email, password) => {
     try {
       const response = await apiService.login(email, password)
-      await loadUserData()
+
+      // Optimistically set user from login response so UI updates immediately
+      if (response && response.user) {
+        console.log('🔐 Login response user:', response.user)
+        console.log('🔐 Login response user roles:', response.user.roles)
+        // Cache user profile for future page loads
+        try { localStorage.setItem('user_profile', JSON.stringify(response.user)) } catch {}
+        dispatch({
+          type: 'LOGIN',
+          payload: {
+            user: response.user, // This should include roles array from backend
+            globalRole: response.user.role || response.user.roles?.[0] || null,
+            clubRelationships: {}
+          }
+        })
+      }
+
+      // Try to hydrate full profile and relationships; ignore if token not yet accepted
+      try {
+        await loadUserData()
+      } catch (e) {
+        // Non-fatal: keep optimistic state from login response
+      }
+
       return response
     } catch (error) {
       throw error
@@ -154,6 +196,7 @@ export function UserProvider({ children }) {
     try {
       await apiService.logout()
       dispatch({ type: 'LOGOUT' })
+      try { localStorage.removeItem('user_profile') } catch {}
     } catch (error) {
       console.error('Error logging out:', error)
     }

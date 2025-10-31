@@ -27,7 +27,9 @@ export function OpenActiveAdmin() {
       return
     }
 
-    if (globalRole !== 'openactive_user') {
+    // Only OpenFarm users can access the admin panel
+    const userRoles = user?.roles || [];
+    if (!userRoles.includes('openfarm_user')) {
       navigate('/')
       return
     }
@@ -40,13 +42,36 @@ export function OpenActiveAdmin() {
     setError('')
     
     try {
-      const [usersResponse, clubsResponse] = await Promise.all([
-        apiService.getAllUsers(),
-        apiService.getClubs()
-      ])
+      // Load farms and users separately so one failure doesn't block the other
+      let usersError = null;
+      let farmsError = null;
+      
+      const promises = [
+        apiService.getClubs().catch(err => {
+          console.error('Failed to load farms:', err)
+          farmsError = err;
+          return { farms: [], clubs: [] }
+        }),
+        apiService.getAllUsers().catch(err => {
+          console.error('Failed to load users:', err.message || err)
+          usersError = err;
+          return { users: [] }
+        })
+      ]
+      
+      const [clubsResponse, usersResponse] = await Promise.all(promises)
       
       setUsers(usersResponse.users || [])
-      setClubs(clubsResponse.clubs || [])
+      setClubs(clubsResponse.farms || clubsResponse.clubs || [])
+      
+      // Show error message if there was an issue
+      if (usersError) {
+        setError(`Failed to load users: ${usersError.message || 'Check console for details'}`)
+      } else if (farmsError) {
+        setError(`Failed to load farms: ${farmsError.message || 'Check console for details'}`)
+      } else {
+        setError('') // Clear any previous errors
+      }
     } catch (err) {
       console.error('Error loading dashboard data:', err)
       setError(err.message || 'Failed to load dashboard data')
@@ -67,7 +92,9 @@ export function OpenActiveAdmin() {
     )
   }
 
-  if (globalRole !== 'openactive_user') {
+  // Only OpenFarm users can access the admin panel
+  const userRoles = user?.roles || [];
+  if (!userRoles.includes('openfarm_user')) {
     return null
   }
 
@@ -111,13 +138,13 @@ export function OpenActiveAdmin() {
           <button 
             className={`nav-item ${activeTab === 'clubs' ? 'active' : ''}`}
             onClick={() => setActiveTab('clubs')}
-            title="All Clubs"
+            title="All Farms"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-            {!isSidebarCollapsed && <span>All Clubs</span>}
+            {!isSidebarCollapsed && <span>All Farms</span>}
           </button>
 
           <button 
@@ -190,10 +217,10 @@ function AllUsersTab({ users, onRefresh }) {
 
   const getRoleBadgeClass = (role) => {
     switch(role) {
-      case 'openactive_user': return 'role-badge role-admin'
-      case 'club_manager': return 'role-badge role-manager'
+      case 'openfarm_user': return 'role-badge role-admin'
+      case 'owner': return 'role-badge role-owner'
+      case 'manager': return 'role-badge role-manager'
       case 'member': return 'role-badge role-member'
-      case 'visitor': return 'role-badge role-visitor'
       default: return 'role-badge'
     }
   }
@@ -209,7 +236,7 @@ function AllUsersTab({ users, onRefresh }) {
   const handleRoleChange = async (userId, newRole) => {
     setIsUpdating(true)
     try {
-      await apiService.updateUserRole(userId, newRole)
+      await apiService.assignUserRole(userId, newRole)
       await onRefresh()
       setEditingUserId(null)
     } catch (error) {
@@ -282,24 +309,23 @@ function AllUsersTab({ users, onRefresh }) {
                     <span>{user.name || 'N/A'}</span>
                   </td>
                   <td className="user-email">{user.email}</td>
-                  <td className="user-phone">{user.phone || 'N/A'}</td>
+                  <td className="user-phone">N/A</td>
                   <td>
                     {editingUserId === user.id ? (
                       <select 
                         className="role-select"
-                        defaultValue={user.role}
+                        defaultValue={user.role || user.roles?.[0] || 'member'}
                         onChange={(e) => handleRoleChange(user.id, e.target.value)}
                         disabled={isUpdating}
                       >
-                        <option value="visitor">Visitor</option>
-                        <option value="member">Member</option>
-                        <option value="club_manager">Club Manager</option>
-                        <option value="openactive_user">OpenActive User</option>
+                        <option value="openfarm_user">OpenFarm User</option>
+                        <option value="owner">Owner</option>
+                        <option value="manager">Manager</option>
                       </select>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span className={getRoleBadgeClass(user.role)}>
-                          {user.role.replace('_', ' ')}
+                        <span className={getRoleBadgeClass(user.role || 'member')}>
+                          {(user.role || 'member').replace('_', ' ')}
                         </span>
                         <button 
                           className="edit-role-button"
@@ -315,11 +341,11 @@ function AllUsersTab({ users, onRefresh }) {
                     )}
                   </td>
                   <td className="user-clubs">
-                    {user.clubs && user.clubs.length > 0 ? (
+                    {user.farms && user.farms.length > 0 ? (
                       <div className="clubs-list">
-                        {user.clubs.map((club, idx) => (
+                        {user.farms.map((farm, idx) => (
                           <span key={idx} className="club-tag">
-                            {club.clubName} <span className="club-role">({club.role})</span>
+                            {farm.farmName} <span className="club-role">({farm.role})</span>
                           </span>
                         ))}
                       </div>
@@ -349,17 +375,17 @@ function AllClubsTab({ clubs, onRefresh, navigate }) {
     })
   }
 
-  const filteredClubs = clubs.filter(club => 
-    club.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    club.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredClubs = clubs.filter(farm => 
+    farm.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    farm.location?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
     <div className="content-section">
       <div className="section-header">
         <div>
-          <h1>Clubs</h1>
-          <p className="section-subtitle">{clubs.length} tennis clubs registered</p>
+          <h1>Farms</h1>
+          <p className="section-subtitle">{clubs.length} farms registered</p>
         </div>
         <button className="btn-primary" onClick={onRefresh}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -379,7 +405,7 @@ function AllClubsTab({ clubs, onRefresh, navigate }) {
           </svg>
           <input 
             type="text" 
-            placeholder="Search clubs..." 
+            placeholder="Search farms..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -388,40 +414,50 @@ function AllClubsTab({ clubs, onRefresh, navigate }) {
 
       {filteredClubs.length === 0 ? (
         <div className="empty-state">
-          <p>No clubs found.</p>
+          <p>No farms found.</p>
         </div>
       ) : (
         <div className="clubs-grid">
-          {filteredClubs.map((club) => (
-            <div key={club.id} className="club-card">
+          {filteredClubs.map((farm) => {
+            // Generate slug from farm name for navigation
+            const slug = (farm.name || '')
+              .toString()
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '') || farm.id;
+            
+            return (
+            <div key={farm.id} className="club-card">
               <div className="club-card-header">
-                <h3>{club.name}</h3>
-                <span className={`status-badge ${club.is_active ? 'status-active' : 'status-inactive'}`}>
-                  {club.is_active ? 'Active' : 'Inactive'}
-                </span>
+                <h3>{farm.name}</h3>
               </div>
-              <p className="club-description">{club.description || 'No description provided.'}</p>
               <div className="club-details">
                 <div className="detail-row">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
                   </svg>
-                  <span>{club.address || 'N/A'}</span>
+                  <span>{farm.location || 'N/A'}</span>
                 </div>
-                <div className="detail-row">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                  </svg>
-                  <span>{club.phone || 'N/A'}</span>
-                </div>
-                <div className="detail-row">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                    <polyline points="22,6 12,13 2,6"></polyline>
-                  </svg>
-                  <span>{club.email || 'N/A'}</span>
-                </div>
+                {farm.hectares && (
+                  <div className="detail-row">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    </svg>
+                    <span>{farm.hectares} hectares</span>
+                  </div>
+                )}
+                {farm.financial_year_start && (
+                  <div className="detail-row">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>FY Start: {new Date(farm.financial_year_start).toLocaleDateString()}</span>
+                  </div>
+                )}
                 <div className="detail-row">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -429,17 +465,17 @@ function AllClubsTab({ clubs, onRefresh, navigate }) {
                     <line x1="8" y1="2" x2="8" y2="6"></line>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                   </svg>
-                  <span>Created {formatDate(club.created_at)}</span>
+                  <span>Created {formatDate(farm.created_at)}</span>
                 </div>
               </div>
               <button 
                 className="btn-secondary btn-block"
-                onClick={() => navigate(`/club/${club.id}/admin`)}
+                onClick={() => navigate(`/club/${slug}/admin`)}
               >
-                Manage Club →
+                Manage Farm →
               </button>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </div>
@@ -449,10 +485,11 @@ function AllClubsTab({ clubs, onRefresh, navigate }) {
 function AnalyticsTab({ users, clubs }) {
   const stats = {
     totalUsers: users.length,
-    totalClubs: clubs.length,
-    activeClubs: clubs.filter(c => c.is_active).length,
-    openActiveUsers: users.filter(u => u.role === 'openactive_user').length,
-    clubManagers: users.filter(u => u.role === 'club_manager').length,
+    totalFarms: clubs.length,
+    activeFarms: clubs.filter(c => c.is_active).length,
+    openFarmUsers: users.filter(u => u.roles?.includes('openfarm_user')).length,
+    owners: users.filter(u => u.roles?.includes('owner')).length,
+    managers: users.filter(u => u.roles?.includes('manager')).length,
     members: users.filter(u => u.role === 'member').length,
   }
 
@@ -489,8 +526,8 @@ function AnalyticsTab({ users, clubs }) {
             </svg>
           </div>
           <div className="stat-content">
-            <h3>{stats.totalClubs}</h3>
-            <p>Total Clubs</p>
+            <h3>{stats.totalFarms}</h3>
+            <p>Total Farms</p>
           </div>
         </div>
 
@@ -502,8 +539,8 @@ function AnalyticsTab({ users, clubs }) {
             </svg>
           </div>
           <div className="stat-content">
-            <h3>{stats.openActiveUsers}</h3>
-            <p>System Admins</p>
+            <h3>{stats.openFarmUsers}</h3>
+            <p>OpenFarm Users</p>
           </div>
         </div>
 
@@ -515,8 +552,21 @@ function AnalyticsTab({ users, clubs }) {
             </svg>
           </div>
           <div className="stat-content">
-            <h3>{stats.clubManagers}</h3>
-            <p>Club Managers</p>
+            <h3>{stats.owners}</h3>
+            <p>Owners</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon stat-icon-blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div className="stat-content">
+            <h3>{stats.managers}</h3>
+            <p>Managers</p>
           </div>
         </div>
       </div>

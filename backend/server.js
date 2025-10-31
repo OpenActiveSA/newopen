@@ -12,6 +12,7 @@ const farmsRoutes = require('./routes/farms');
 const bookingRoutes = require('./routes/bookings');
 const courtRoutes = require('./routes/courts');
 const clubSettingsRoutes = require('./routes/club-settings');
+const rainfallRoutes = require('./routes/rainfall');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,7 +37,10 @@ app.use(cors({
     if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
     return callback(null, false);
   },
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset']
 }));
 
 // Body parsing middleware
@@ -75,6 +79,7 @@ app.use('/api/camps', courtRoutes);
 app.use('/api/club-settings', clubSettingsRoutes);
 // New alias: farm-settings (maps to club-settings routes)
 app.use('/api/farm-settings', clubSettingsRoutes);
+app.use('/api', rainfallRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

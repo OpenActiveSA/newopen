@@ -120,12 +120,28 @@ router.post('/login', [
     // Generate token
     const token = generateToken(user.id);
 
+    // Get user's roles
+    const rolesResult = await query(`
+      SELECT r.name 
+      FROM user_roles ur
+      JOIN roles r ON ur.role_id = r.id
+      WHERE ur.user_id = ?
+    `, [user.id]);
+
+    const userRoles = rolesResult.rows.map(r => r.name);
+
     // Relationships are farm-scoped in new schema; return empty for now
     const clubRelationships = { rows: [] };
 
     res.json({
       message: 'Login successful',
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name,
+        roles: userRoles,
+        role: userRoles[0] || null // Primary role for backward compatibility
+      },
       clubRelationships: clubRelationships.rows,
       token
     });

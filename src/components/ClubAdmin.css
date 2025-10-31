@@ -192,8 +192,6 @@
 }
 
 .form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -254,7 +252,7 @@
 }
 
 .btn-danger {
-  color: #ef4444;
+  color: #fff;
   border-color: rgba(239, 68, 68, 0.2);
 }
 
